@@ -1,0 +1,117 @@
+/* === Estilos generales === */
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #1c1f26, #2a2f3a);
+  font-family: "Segoe UI", Roboto, sans-serif;
+  color: #e0e0e0;
+  width: 100%;
+}
+
+/* === Tarjeta del formulario === */
+.login-card {
+  background: #2f3542;
+  padding: 3.5rem 3rem;
+  border-radius: 1.2rem;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+  animation: fadeIn 0.6s ease-in-out;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* === Título === */
+.login-card h2 {
+  color: #ffffff;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+/* === Formulario === */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+}
+
+/* === Campos de entrada === */
+.login-form input {
+  padding: 1rem 1.2rem;
+  border-radius: 0.6rem;
+  border: 1px solid #555b65;
+  background-color: #3b4252;
+  color: #e8e8e8;
+  font-size: 1.05rem;
+  transition: all 0.25s ease;
+}
+
+.login-form input:focus {
+  border-color: #5b9bd5;
+  background-color: #434b5b;
+  outline: none;
+  box-shadow: 0 0 6px rgba(91, 155, 213, 0.4);
+}
+
+/* === Botón === */
+.login-form button {
+  padding: 1rem;
+  border: none;
+  border-radius: 0.6rem;
+  background-color: #5b9bd5;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.login-form button:hover {
+  background-color: #4a8ac2;
+  transform: translateY(-1px);
+}
+
+.login-form button:disabled {
+  background-color: #7ba9d7;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+/* === Mensaje de error === */
+.login-error {
+  margin-top: 1.3rem;
+  color: #ff6b6b;
+  background-color: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.2);
+  padding: 0.8rem;
+  border-radius: 0.6rem;
+  font-size: 0.95rem;
+}
+
+/* === Animación suave === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === Responsividad === */
+@media (max-width: 600px) {
+  .login-card {
+    padding: 2rem;
+    max-width: 90%;
+  }
+
+  .login-card h2 {
+    font-size: 1.6rem;
+  }
+}
