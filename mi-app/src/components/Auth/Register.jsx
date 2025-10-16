@@ -12,6 +12,7 @@ export default function Register() {
     e.preventDefault();
     try {
       await api.post("/auth/register", { email, password });
+      alert("Cuenta creada con éxito. Inicia sesión.");
       nav("/login");
     } catch (err) {
       console.error(err);
@@ -37,6 +38,7 @@ export default function Register() {
             placeholder="Contraseña"
             type="password"
             required
+            maxLength={72}
           />
           <button type="submit">Registrarse</button>
         </form>

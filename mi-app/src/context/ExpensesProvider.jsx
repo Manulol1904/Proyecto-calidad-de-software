@@ -53,28 +53,33 @@ export function ExpensesProvider({ children }) {
   };
 
   useEffect(() => {
-    loadExpenses();
-    // Conectar WebSocket para recibir nuevos gastos en tiempo real
-    const base = import.meta.env.VITE_API_URL || "http://localhost:8000";
-    const wsBase = apiToWs(base);
-    const wsUrl = wsBase.replace(/\/$/, "") + "/ws/expenses";
-    const ws = new WebSocket(wsUrl);
+    // Solo cargar gastos si hay token de autenticación
+    const token = localStorage.getItem("token");
+    if (token) {
+      loadExpenses();
+      
+      // Conectar WebSocket solo si hay token
+      const base = import.meta.env.VITE_API_URL || "http://localhost:8000";
+      const wsBase = apiToWs(base);
+      const wsUrl = wsBase.replace(/\/$/, "") + "/ws/expenses?token=" + token;
+      const ws = new WebSocket(wsUrl);
 
-    ws.onopen = () => console.log("WS conectado:", wsUrl);
-    ws.onmessage = (evt) => {
-      try {
-        const msg = JSON.parse(evt.data);
-        if (msg.type === "new_expense") {
-          dispatch({ type: "ADD", payload: msg.payload });
+      ws.onopen = () => console.log("WS conectado:", wsUrl);
+      ws.onmessage = (evt) => {
+        try {
+          const msg = JSON.parse(evt.data);
+          if (msg.type === "new_expense") {
+            dispatch({ type: "ADD", payload: msg.payload });
+          }
+        } catch (e) {
+          console.error("WS message parse error", e);
         }
-      } catch (e) {
-        console.error("WS message parse error", e);
-      }
-    };
-    ws.onerror = (e) => console.error("WS error", e);
-    ws.onclose = () => console.log("WS cerrado");
+      };
+      ws.onerror = (e) => console.error("WS error", e);
+      ws.onclose = () => console.log("WS cerrado");
 
-    return () => ws.close();
+      return () => ws.close();
+    }
   }, []);
 
   return (
