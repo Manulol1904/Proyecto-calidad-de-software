@@ -1,21 +1,36 @@
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 import api from "../Api/apiClient";
+
 const ExpensesContext = createContext();
-const initial = { list: [], loading: false, error: null };
+
+const initial = { list: [], loading: false, error: null, user: null };
 
 function reducer(state, action) {
   switch (action.type) {
-    case "LOAD_START": return { ...state, loading: true };
-    case "LOAD_SUCCESS": return { ...state, loading: false, list: action.payload };
-    case "LOAD_FAIL": return { ...state, loading: false, error: action.payload };
-    case "ADD": return { ...state, list: [action.payload, ...state.list] };
-    case "UPDATE": return { ...state, list: state.list.map(i => i.id === action.payload.id ? action.payload : i) };
-    case "DELETE": return { ...state, list: state.list.filter(i => i.id !== action.payload) };
-    default: return state;
+    case "LOAD_START":
+      return { ...state, loading: true };
+    case "LOAD_SUCCESS":
+      return { ...state, loading: false, list: action.payload };
+    case "LOAD_FAIL":
+      return { ...state, loading: false, error: action.payload };
+    case "ADD":
+      return { ...state, list: [action.payload, ...state.list] };
+    case "UPDATE":
+      return {
+        ...state,
+        list: state.list.map((i) =>
+          i.id === action.payload.id ? action.payload : i
+        ),
+      };
+    case "DELETE":
+      return { ...state, list: state.list.filter((i) => i.id !== action.payload) };
+    case "SET_USER":
+      return { ...state, user: action.payload };
+    default:
+      return state;
   }
 }
 
-// helper para convertir http(s) -> ws(s)
 function apiToWs(apiUrl) {
   if (apiUrl.startsWith("https://")) return apiUrl.replace(/^https:/, "wss:");
   if (apiUrl.startsWith("http://")) return apiUrl.replace(/^http:/, "ws:");
@@ -28,62 +43,53 @@ export function ExpensesProvider({ children }) {
   const loadExpenses = async () => {
     dispatch({ type: "LOAD_START" });
     try {
-      const res = await api.get("/expenses");
-      dispatch({ type: "LOAD_SUCCESS", payload: res.data });
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const res = await api.get("/expenses", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      dispatch({ type: "LOAD_SUCCESS", payload: res.data.expenses || [] });
     } catch (err) {
       dispatch({ type: "LOAD_FAIL", payload: err.response?.data || err.message });
     }
   };
 
-  const addExpense = async (data) => {
-    const res = await api.post("/expenses", data);
-    dispatch({ type: "ADD", payload: res.data });
-    return res.data;
-  };
-
-  const updateExpense = async (id, data) => {
-    const res = await api.put(`/expenses/${id}`, data);
-    dispatch({ type: "UPDATE", payload: res.data });
-    return res.data;
-  };
-
-  const deleteExpense = async (id) => {
-    await api.delete(`/expenses/${id}`);
-    dispatch({ type: "DELETE", payload: id });
-  };
-
   useEffect(() => {
-    // Solo cargar gastos si hay token de autenticación
     const token = localStorage.getItem("token");
-    if (token) {
-      loadExpenses();
-      
-      // Conectar WebSocket solo si hay token
-      const base = import.meta.env.VITE_API_URL || "http://localhost:8000";
-      const wsBase = apiToWs(base);
-      const wsUrl = wsBase.replace(/\/$/, "") + "/ws/expenses?token=" + token;
-      const ws = new WebSocket(wsUrl);
+    if (!token) return;
 
-      ws.onopen = () => console.log("WS conectado:", wsUrl);
-      ws.onmessage = (evt) => {
-        try {
-          const msg = JSON.parse(evt.data);
-          if (msg.type === "new_expense") {
-            dispatch({ type: "ADD", payload: msg.payload });
-          }
-        } catch (e) {
-          console.error("WS message parse error", e);
+    // Cargar usuario
+    api
+      .get("/auth/me", { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => dispatch({ type: "SET_USER", payload: res.data }))
+      .catch((err) => console.error("Error cargando usuario:", err));
+
+    // Cargar gastos
+    loadExpenses();
+
+    // Conectar WebSocket
+    const base = import.meta.env.VITE_API_URL || "http://localhost:8000";
+    const wsBase = apiToWs(base);
+    const wsUrl = wsBase.replace(/\/$/, "") + "/ws/expenses?token=" + token;
+    const ws = new WebSocket(wsUrl);
+
+    ws.onmessage = (evt) => {
+      try {
+        const msg = JSON.parse(evt.data);
+        if (msg.type === "new_expense") {
+          dispatch({ type: "ADD", payload: msg.payload });
         }
-      };
-      ws.onerror = (e) => console.error("WS error", e);
-      ws.onclose = () => console.log("WS cerrado");
+      } catch (e) {
+        console.error("WS parse error", e);
+      }
+    };
 
-      return () => ws.close();
-    }
+    return () => ws.close();
   }, []);
 
   return (
-    <ExpensesContext.Provider value={{ ...state, loadExpenses, addExpense, updateExpense, deleteExpense }}>
+    <ExpensesContext.Provider value={{ ...state, loadExpenses }}>
       {children}
     </ExpensesContext.Provider>
   );

@@ -131,6 +131,22 @@ body, html {
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
   text-align: center;
 }
+/* 🔹 Tarjeta de ingreso declarado del usuario */
+.summary-card.user-income {
+  background-color: #e0f7fa; /* azul clarito */
+  border: 2px solid #00bcd4;
+  color: #006064;
+}
+
+.summary-card.user-income h3 {
+  color: #00acc1;
+}
+
+.summary-card.user-income p {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
 
 .chart-card h3 {
   margin-bottom: 15px;

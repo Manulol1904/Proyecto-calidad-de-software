@@ -30,7 +30,10 @@ class User(BaseModel):
     is_active: bool = True
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
-    
+
+    # 👇 Agrega este campo
+    income: float = Field(default=0.0, ge=0)
+
     model_config = {
         "populate_by_name": True,
         "arbitrary_types_allowed": True,
@@ -40,7 +43,8 @@ class User(BaseModel):
                 "username": "johndoe",
                 "email": "john@example.com",
                 "full_name": "John Doe",
-                "is_active": True
+                "is_active": True,
+                "income": 2500000
             }
         }
     }

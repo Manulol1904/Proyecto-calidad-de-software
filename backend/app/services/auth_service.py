@@ -51,18 +51,22 @@ class AuthService:
         if existing_username:
             username = f"{username}_{int(datetime.utcnow().timestamp())}"
 
-        # Create new user
+        # ✅ Hashear contraseña
         hashed_password = get_password_hash(user_data.password)
+
+        # ✅ Crear el diccionario del nuevo usuario
         user_dict = {
             "username": username,
             "email": user_data.email,
             "full_name": getattr(user_data, "full_name", None),
             "hashed_password": hashed_password,
             "is_active": True,
+            "income": getattr(user_data, "income", 0.0),  # 👈 aquí se guarda el ingreso
             "created_at": datetime.utcnow(),
             "updated_at": datetime.utcnow()
         }
 
+        # ✅ Insertar en la base de datos
         result = await users_collection.insert_one(user_dict)
         user_dict["_id"] = result.inserted_id
 

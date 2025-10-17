@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException, status, Depends
-from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 from app.schemas.user import UserCreate, UserResponse, Token, UserLogin
 from app.models.user import User
@@ -8,9 +7,8 @@ from app.utils.security import create_access_token
 from app.utils.dependencies import get_current_active_user
 from app.config.settings import get_settings
 
-
-
 router = APIRouter(prefix="/auth", tags=["authentication"])
+
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register(user_data: UserCreate):
@@ -25,13 +23,15 @@ async def register(user_data: UserCreate):
             email=user.email,
             full_name=user.full_name,
             is_active=user.is_active,
-            created_at=user.created_at
+            created_at=user.created_at,
+            income=user.income or 0.0  # 👈 agregado
         )
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
+
 
 @router.post("/login", response_model=Token)
 async def login(login_data: UserLogin):
@@ -52,7 +52,21 @@ async def login(login_data: UserLogin):
         data={"sub": user.email}, expires_delta=access_token_expires
     )
     
-    return {"access_token": access_token, "token_type": "bearer"}
+    # 👇 devolvemos también los datos del usuario (con income incluido)
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "id": str(user.id),
+            "username": user.username,
+            "email": user.email,
+            "full_name": user.full_name,
+            "is_active": user.is_active,
+            "created_at": user.created_at,
+            "income": getattr(user, "income", 0.0)
+        }
+    }
+
 
 @router.get("/me", response_model=UserResponse)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
@@ -63,8 +77,10 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
         email=current_user.email,
         full_name=current_user.full_name,
         is_active=current_user.is_active,
-        created_at=current_user.created_at
+        created_at=current_user.created_at,
+        income=getattr(current_user, "income", 0.0)  # 👈 agregado
     )
+
 
 @router.post("/logout")
 async def logout():

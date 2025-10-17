@@ -11,15 +11,18 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     """Schema for user creation"""
     password: str = Field(..., min_length=6, max_length=72)
+    income: Optional[float] = Field(default=0.0, ge=0)
     
     model_config = {
         "json_schema_extra": {
             "example": {
                 "email": "john@example.com",
-                "password": "securepassword123"
+                "password": "securepassword123",
+                "income": 2500000
             }
         }
     }
+
 
 class UserLogin(BaseModel):
     """Schema for user login"""
@@ -40,6 +43,7 @@ class UserResponse(UserBase):
     id: str
     is_active: bool
     created_at: datetime
+    income: Optional[float] = 0.0
     
     model_config = {
         "from_attributes": True,

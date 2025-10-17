@@ -29,23 +29,23 @@ ChartJS.register(
 );
 
 export default function Dashboard() {
-  const { list } = useExpenses();
+  const { list, user } = useExpenses();
 
   // 🔹 Agrupar por fecha (saldo neto diario)
   const grouped = {};
   list.forEach((e) => {
     const day = new Date(e.date).toLocaleDateString();
-    grouped[day] =
-      (grouped[day] || 0) + (e.type === "income" ? e.amount : -e.amount);
+    grouped[day] = (grouped[day] || 0) + (e.type === "income" ? e.amount : -e.amount);
   });
 
   const labels = Object.keys(grouped).sort((a, b) => new Date(a) - new Date(b));
   const dataValues = labels.map((l) => grouped[l]);
 
   // 🔹 Totales
-  const totalIncome = list
+  const totalIncomeFromExpenses = list
     .filter((e) => e.type === "income")
     .reduce((sum, e) => sum + e.amount, 0);
+  const totalIncome = totalIncomeFromExpenses;
   const totalExpense = list
     .filter((e) => e.type === "expense")
     .reduce((sum, e) => sum + e.amount, 0);
@@ -100,10 +100,8 @@ export default function Dashboard() {
   // 🔹 Alertas
   const alerts = [];
   if (lowBalance) alerts.push("⚠️ Saldo bajo: considera reducir gastos.");
-  if (totalExpense > totalIncome)
-    alerts.push("🚨 Gastas más de lo que ingresas este mes.");
-  if (list.length === 0)
-    alerts.push("📭 Aún no tienes movimientos registrados.");
+  if (totalExpense > totalIncome) alerts.push("🚨 Gastas más de lo que ingresas este mes.");
+  if (list.length === 0) alerts.push("📭 Aún no tienes movimientos registrados.");
 
   return (
     <div className="dashboard">
@@ -123,6 +121,12 @@ export default function Dashboard() {
 
         {/* 🔹 Resumen general */}
         <div className="summary-section">
+          {user && (
+            <div className="summary-card user-income">
+              <h3>💎 Ingreso del usuario</h3>
+              <p>${user.income.toFixed(2)}</p>
+            </div>
+          )}
           <div className="summary-card income">
             <h3>💰 Ingresos</h3>
             <p>${totalIncome.toFixed(2)}</p>
@@ -155,53 +159,17 @@ export default function Dashboard() {
             <h3>📈 Evolución del saldo</h3>
             <Line data={dataLine} />
           </div>
-
           <div className="chart-card">
             <h3>💸 Ingresos vs Gastos</h3>
             <Bar data={dataBar} />
           </div>
-
           <div className="chart-card">
             <h3>📊 Distribución porcentual</h3>
             <Doughnut data={dataDoughnut} />
           </div>
         </div>
 
-        {/* 🗓️ Timeline financiero */}
-        <div className="timeline-section">
-          <h3>🗓️ Timeline Financiero</h3>
-          <div className="timeline">
-            {list.length === 0 ? (
-              <p>No hay movimientos registrados.</p>
-            ) : (
-              list
-                .sort((a, b) => new Date(b.date) - new Date(a.date))
-                .slice(0, 6)
-                .map((item, i) => (
-                  <div key={i} className="timeline-item">
-                    <div
-                      className={`timeline-dot ${
-                        item.type === "income" ? "dot-income" : "dot-expense"
-                      }`}
-                    ></div>
-                    <div className="timeline-content">
-                      <p className="timeline-date">
-                        {new Date(item.date).toLocaleDateString()}
-                      </p>
-                      <p>
-                        <strong>
-                          {item.type === "income" ? "Ingreso" : "Gasto"}:
-                        </strong>{" "}
-                        ${item.amount.toFixed(2)} {item.category && `| ${item.category}`}
-                      </p>
-                    </div>
-                  </div>
-                ))
-            )}
-          </div>
-        </div>
-
-        {/* 🔹 Clasificación por categorías */}
+        {/* 🔹 Categorías */}
         <div className="categories-section">
           <h3>🧠 Clasificación automática</h3>
           <table className="category-table">
@@ -216,37 +184,6 @@ export default function Dashboard() {
                 <tr key={cat}>
                   <td>{cat}</td>
                   <td>{val.toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* 🔹 Movimientos recientes */}
-        <div className="movements-section">
-          <h3>📑 Movimientos recientes</h3>
-          <table className="movements-table">
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Tipo</th>
-                <th>Categoría</th>
-                <th>Monto</th>
-              </tr>
-            </thead>
-            <tbody>
-              {list.slice(-5).map((e, i) => (
-                <tr key={i}>
-                  <td>{new Date(e.date).toLocaleDateString()}</td>
-                  <td>{e.type === "income" ? "Ingreso" : "Gasto"}</td>
-                  <td>{e.category || "-"}</td>
-                  <td
-                    className={
-                      e.type === "income" ? "amount-income" : "amount-expense"
-                    }
-                  >
-                    ${e.amount.toFixed(2)}
-                  </td>
                 </tr>
               ))}
             </tbody>
