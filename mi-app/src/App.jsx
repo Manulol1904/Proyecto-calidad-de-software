@@ -7,6 +7,7 @@ import ExpensesPage from "./pages/ExpensesPage";
 import Settings from "./pages/Settings";
 import { useAuth } from "./context/AuthProvider";
 import ForgotPassword from "./components/Auth/ForgotPassword";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function Protected({ children }) {
   const { user } = useAuth();
@@ -23,14 +24,15 @@ export default function App() {
       <Route path="/" element={<Dashboard />} />
       <Route path="/gastos" element={<ExpensesPage />} />
       <Route path="/config" element={<Settings />} />
-         <Route path="/forgot-password" element={<ForgotPassword />} />
+     <Route path="/forgot-password" element={<ForgotPassword />} />
+    <Route path="/AdminDashboard" element={<AdminDashboard />} />
     </Routes>
   );
 }
 
 
 
-/*
+/* 
 export default function App() {
   return (
     <Routes>

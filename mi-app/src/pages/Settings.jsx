@@ -6,6 +6,11 @@ export default function Settings() {
   const [notifications, setNotifications] = useState(true);
   const [balance] = useState(125000); // ejemplo
   const [photo, setPhoto] = useState(null);
+  const [language, setLanguage] = useState("es");
+  const [theme, setTheme] = useState("dark");
+  const [primaryColor, setPrimaryColor] = useState("#4CAF50");
+  const [twoFactor, setTwoFactor] = useState(false);
+  const [lowBalanceAlert, setLowBalanceAlert] = useState(false);
 
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
@@ -38,7 +43,9 @@ export default function Settings() {
                 src={photo || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
                 alt="Foto de perfil"
               />
-              <label htmlFor="photo-upload" className="upload-btn">Cambiar foto</label>
+              <label htmlFor="photo-upload" className="upload-btn">
+                Cambiar foto
+              </label>
               <input
                 id="photo-upload"
                 type="file"
@@ -46,24 +53,75 @@ export default function Settings() {
                 onChange={handlePhotoUpload}
               />
             </div>
-            <p><strong>Correo:</strong> usuario@correo.com</p>
-            <p><strong>Miembro desde:</strong> Enero 2024</p>
+            <div className="profile-info">
+              <p><strong>Nombre:</strong> Fernando Gaitán</p>
+              <p><strong>Correo:</strong> usuario@correo.com</p>
+              <p><strong>Miembro desde:</strong> Enero 2024</p>
+              <div className="editable-fields">
+                <label>Idioma:</label>
+                <select value={language} onChange={(e) => setLanguage(e.target.value)}>
+                  <option value="es">Español</option>
+                  <option value="en">Inglés</option>
+                </select>
+                <label>Zona horaria:</label>
+                <select>
+                  <option value="GMT-5">GMT-5 (Colombia)</option>
+                  <option value="GMT-3">GMT-3 (Argentina)</option>
+                  <option value="GMT+1">GMT+1 (España)</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           {/* 🔐 Cambio de contraseña */}
           <div className="settings-card">
-            <h2>Cambiar Contraseña</h2>
+            <h2>Seguridad y Contraseña</h2>
             <form className="password-form">
               <input type="password" placeholder="Contraseña actual" />
               <input type="password" placeholder="Nueva contraseña" />
               <button type="submit">Actualizar</button>
             </form>
+
+            <div className="two-factor">
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={twoFactor}
+                  onChange={() => setTwoFactor(!twoFactor)}
+                />
+                <span className="slider"></span>
+              </label>
+              <p>Autenticación de dos factores {twoFactor ? "activada ✅" : "desactivada ❌"}</p>
+            </div>
+
+            <div className="login-history">
+              <h4>Historial de inicio de sesión:</h4>
+              <ul>
+                <li>📍 Bogotá - 10 Oct 2025, 19:45</li>
+                <li>💻 Chrome - Windows 10</li>
+                <li>📱 Móvil Android - 09 Oct 2025</li>
+              </ul>
+            </div>
           </div>
 
           {/* 💰 Saldo */}
           <div className="settings-card balance-card">
             <h2>Saldo disponible</h2>
             <p className="balance">${balance.toLocaleString()}</p>
+            <button className="link-btn">Vincular cuenta bancaria</button>
+            <button className="link-btn">Definir meta de ahorro</button>
+
+            <div className="alert-option">
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={lowBalanceAlert}
+                  onChange={() => setLowBalanceAlert(!lowBalanceAlert)}
+                />
+                <span className="slider"></span>
+              </label>
+              <p>Alerta si el saldo es bajo</p>
+            </div>
           </div>
 
           {/* 📬 Notificaciones */}
@@ -78,6 +136,13 @@ export default function Settings() {
               <span className="slider"></span>
             </label>
             <p>{notifications ? "Activadas" : "Desactivadas"}</p>
+
+            <div className="notif-types">
+              <label><input type="checkbox" defaultChecked /> 💵 Gastos importantes</label>
+              <label><input type="checkbox" defaultChecked /> 📆 Recordatorios automáticos</label>
+              <label><input type="checkbox" /> 📊 Resúmenes semanales</label>
+              <label><input type="checkbox" /> ✉️ Enviar por correo</label>
+            </div>
           </div>
 
           {/* 📄 Datos de cuenta */}
@@ -87,6 +152,47 @@ export default function Settings() {
             <p><strong>Correo:</strong> usuario@correo.com</p>
             <p><strong>Plan:</strong> Estándar</p>
             <p><strong>Estado:</strong> Activo ✅</p>
+          </div>
+
+          {/* 🧾 Personalización del sistema */}
+          <div className="settings-card customization-card">
+            <h2>Personalización del sistema</h2>
+            <div className="theme-options">
+              <label>Tema:</label>
+              <select value={theme} onChange={(e) => setTheme(e.target.value)}>
+                <option value="dark">Oscuro</option>
+                <option value="light">Claro</option>
+              </select>
+
+              <label>Color principal:</label>
+              <input
+                type="color"
+                value={primaryColor}
+                onChange={(e) => setPrimaryColor(e.target.value)}
+              />
+            </div>
+            <div className="font-size">
+              <label>Tamaño de fuente:</label>
+              <select>
+                <option value="normal">Normal</option>
+                <option value="large">Grande</option>
+                <option value="xlarge">Extra grande</option>
+              </select>
+            </div>
+          </div>
+
+          {/* 💾 Gestión de datos y reportes */}
+          <div className="settings-card data-management">
+            <h2>Gestión de datos y reportes</h2>
+            <button className="export-btn">Exportar datos (PDF)</button>
+            <button className="export-btn">Exportar a Excel</button>
+            <button className="export-btn">Descargar historial</button>
+
+            <div className="danger-zone">
+              <h4>Zona de riesgo ⚠️</h4>
+              <button className="delete-btn">Borrar cuenta</button>
+              <button className="reset-btn">Restablecer configuración</button>
+            </div>
           </div>
         </div>
       </div>
