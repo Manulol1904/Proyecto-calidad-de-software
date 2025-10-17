@@ -1,39 +1,38 @@
 /* ==============================
-   ESTILO BASE (Arial)
-============================== */
-body,
+   💰 ESTILOS DE LA PÁGINA DE GASTOS
+   ============================== */
+
 .expenses-page {
-  font-family: Arial, Helvetica, sans-serif;
-  background-color: #f7f8fa;
+  font-family: "Poppins", sans-serif;
+  background-color: #f4f6f9;
+  min-height: 100vh;
+  padding: 30px;
   color: #333;
-  margin: 0;
-  padding: 0;
 }
 
-/* ==============================
-   NAVBAR
-============================== */
+/* 🔹 Navbar */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #1e88e5;
-  color: white;
+  background: #0077cc;
+  color: #fff;
   padding: 15px 30px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+  margin-bottom: 40px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .nav-title {
-  font-size: 22px;
-  font-weight: bold;
+  font-size: 1.6rem;
+  font-weight: 600;
 }
 
 .nav-links a {
-  color: white;
+  color: #fff;
+  margin-left: 25px;
   text-decoration: none;
-  margin-left: 20px;
-  font-size: 15px;
-  font-weight: bold;
+  transition: 0.3s ease;
 }
 
 .nav-links a:hover {
@@ -41,87 +40,128 @@ body,
 }
 
 /* ==============================
-   CONTENIDO PRINCIPAL
-============================== */
-.expenses-content {
-  padding: 30px;
-}
-
-h1 {
-  font-size: 26px;
-  margin-bottom: 15px;
-  color: #1e88e5;
-}
-
-/* ==============================
-   ALERTAS
-============================== */
+   ⚠️ ALERTAS
+   ============================== */
 .alert-box {
-  background-color: #ffe0b2;
-  color: #8a4b0a;
-  padding: 12px 20px;
-  border-radius: 8px;
-  margin: 15px 30px;
-  font-weight: bold;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  border-radius: 10px;
+  padding: 15px 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.1);
+}
+
+.alert-box p {
+  margin: 0;
+  font-weight: 500;
 }
 
 /* ==============================
-   FILTROS
-============================== */
+   🔍 FILTROS
+   ============================== */
 .filter-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin: 20px 0;
+  gap: 15px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
 }
 
 .filter-bar input,
 .filter-bar select {
-  padding: 10px;
-  border-radius: 6px;
+  padding: 10px 14px;
   border: 1px solid #ccc;
-  font-family: inherit;
-  font-size: 14px;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 0.95rem;
+  transition: 0.2s;
+}
+
+.filter-bar input:focus,
+.filter-bar select:focus {
+  border-color: #0077cc;
+  outline: none;
+  box-shadow: 0 0 4px rgba(0, 119, 204, 0.3);
 }
 
 .btn-pdf {
-  background-color: #4caf50;
-  color: white;
+  background: #0077cc;
+  color: #fff;
   border: none;
-  border-radius: 6px;
-  padding: 10px 15px;
+  padding: 10px 18px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background 0.3s;
-  font-weight: bold;
+  transition: all 0.3s ease;
+  font-weight: 500;
 }
 
 .btn-pdf:hover {
-  background-color: #388e3c;
+  background: #005fa3;
+  transform: translateY(-2px);
 }
 
 /* ==============================
-   FORMULARIOS
-============================== */
+   📈 COMPARADOR DE MESES
+   ============================== */
+.month-compare {
+  background: #fff;
+  border-radius: 18px;
+  padding: 25px 30px;
+  margin-bottom: 35px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  border-left: 6px solid #0077cc;
+}
+
+.month-compare h3 {
+  color: #0077cc;
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+}
+
+.month-compare p {
+  font-size: 1rem;
+  margin: 6px 0;
+}
+
+.text-danger {
+  color: #dd2222;
+  font-weight: 600;
+}
+
+.text-success {
+  color: #22bb33;
+  font-weight: 600;
+}
+
+.text-neutral {
+  color: #555;
+  font-weight: 500;
+}
+
+/* ==============================
+   🧾 FORMULARIOS
+   ============================== */
 .form-container {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  margin-bottom: 25px;
+  background: #fff;
+  border-radius: 18px;
+  padding: 25px 30px;
+  margin-bottom: 35px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
 .form-container h3 {
-  color: #1e88e5;
+  color: #0077cc;
+  font-size: 1.2rem;
   margin-bottom: 15px;
-  font-size: 18px;
 }
 
 .main-form,
 .auto-form {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 15px;
+  align-items: center;
 }
 
 .main-form input,
@@ -129,100 +169,130 @@ h1 {
 .main-form select,
 .auto-form select {
   flex: 1 1 180px;
-  padding: 10px;
+  padding: 10px 14px;
   border: 1px solid #ccc;
-  border-radius: 6px;
-  font-family: inherit;
-  font-size: 14px;
+  border-radius: 10px;
+  background: #fdfdfd;
+  transition: 0.2s;
 }
 
+.main-form input:focus,
+.auto-form input:focus,
+.main-form select:focus,
+.auto-form select:focus {
+  border-color: #0077cc;
+  outline: none;
+  box-shadow: 0 0 4px rgba(0, 119, 204, 0.3);
+}
+
+/* Botones */
 .btn-ingreso,
 .btn-auto {
-  background-color: #1e88e5;
+  background: #0077cc;
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
+  padding: 10px 18px;
+  border-radius: 10px;
   cursor: pointer;
-  font-weight: bold;
-  transition: background 0.3s;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
 .btn-ingreso:hover,
 .btn-auto:hover {
-  background-color: #1565c0;
+  background: #005fa3;
+  transform: translateY(-2px);
 }
 
 /* ==============================
-   TABLA DE MOVIMIENTOS
-============================== */
+   📋 TABLA DE MOVIMIENTOS
+   ============================== */
 .table-container {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: #fff;
+  border-radius: 18px;
+  padding: 25px 30px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  margin-bottom: 40px;
 }
 
 .table-container h3 {
-  color: #1e88e5;
+  color: #0077cc;
+  font-size: 1.2rem;
+  margin-bottom: 15px;
 }
 
+/* El ExpenseTable usa su propio CSS, pero damos soporte base */
 .expense-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
-  font-size: 14px;
+  font-size: 0.95rem;
 }
 
 .expense-table th,
 .expense-table td {
-  border: 1px solid #ddd;
-  padding: 10px;
+  padding: 12px 16px;
   text-align: left;
+  border-bottom: 1px solid #eee;
 }
 
 .expense-table th {
-  background-color: #e3f2fd;
-  font-weight: bold;
+  background-color: #0077cc;
+  color: white;
+  font-weight: 500;
 }
 
 .expense-table tr:nth-child(even) {
-  background-color: #fafafa;
+  background-color: #f9f9f9;
+}
+
+.expense-table tr:hover {
+  background-color: #eef6ff;
 }
 
 /* ==============================
-   GRÁFICA
-============================== */
+   📊 GRÁFICA
+   ============================== */
 .chart-container {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  margin-top: 25px;
+  background: #fff;
+  border-radius: 18px;
+  padding: 25px 30px;
+  margin-top: 20px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
 .chart-container h3 {
-  color: #1e88e5;
-  margin-bottom: 10px;
+  color: #0077cc;
+  font-size: 1.2rem;
+  margin-bottom: 15px;
 }
 
 /* ==============================
-   RESPONSIVE
-============================== */
+   📱 RESPONSIVE DESIGN
+   ============================== */
 @media (max-width: 768px) {
-  .filter-bar,
+  .navbar {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .main-form,
   .auto-form {
     flex-direction: column;
   }
 
-  .form-container,
-  .table-container,
-  .chart-container {
-    padding: 15px;
+  .btn-pdf,
+  .btn-ingreso,
+  .btn-auto {
+    width: 100%;
   }
 
-  .btn-pdf {
-    width: 100%;
+  .chart-container {
+    padding: 15px;
   }
 }

@@ -42,19 +42,17 @@ export default function Dashboard() {
   const labels = Object.keys(grouped).sort((a, b) => new Date(a) - new Date(b));
   const dataValues = labels.map((l) => grouped[l]);
 
-  // 🔹 Cálculos totales
+  // 🔹 Totales
   const totalIncome = list
     .filter((e) => e.type === "income")
     .reduce((sum, e) => sum + e.amount, 0);
-
   const totalExpense = list
     .filter((e) => e.type === "expense")
     .reduce((sum, e) => sum + e.amount, 0);
-
   const balance = totalIncome - totalExpense;
   const lowBalance = balance < 100;
 
-  // 🔹 Datos para gráfico de saldo neto diario
+  // 🔹 Datos para gráficos
   const dataLine = {
     labels,
     datasets: [
@@ -65,13 +63,10 @@ export default function Dashboard() {
         borderColor: "#52c49d",
         backgroundColor: "rgba(82, 196, 157, 0.2)",
         tension: 0.4,
-        pointBackgroundColor: "#52c49d",
-        pointRadius: 4,
       },
     ],
   };
 
-  // 🔹 Datos para gráfico de ingresos vs gastos
   const dataBar = {
     labels: ["Ingresos", "Gastos"],
     datasets: [
@@ -84,7 +79,6 @@ export default function Dashboard() {
     ],
   };
 
-  // 🔹 Datos para gráfico de distribución porcentual
   const dataDoughnut = {
     labels: ["Ingresos", "Gastos"],
     datasets: [
@@ -96,14 +90,14 @@ export default function Dashboard() {
     ],
   };
 
-  // 🔹 Clasificación automática (categorías frecuentes)
+  // 🔹 Clasificación por categorías
   const categories = {};
   list.forEach((e) => {
     const cat = e.category || "Sin categoría";
     categories[cat] = (categories[cat] || 0) + e.amount;
   });
 
-  // 🔹 Recordatorios y alertas
+  // 🔹 Alertas
   const alerts = [];
   if (lowBalance) alerts.push("⚠️ Saldo bajo: considera reducir gastos.");
   if (totalExpense > totalIncome)
@@ -173,6 +167,40 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* 🗓️ Timeline financiero */}
+        <div className="timeline-section">
+          <h3>🗓️ Timeline Financiero</h3>
+          <div className="timeline">
+            {list.length === 0 ? (
+              <p>No hay movimientos registrados.</p>
+            ) : (
+              list
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .slice(0, 6)
+                .map((item, i) => (
+                  <div key={i} className="timeline-item">
+                    <div
+                      className={`timeline-dot ${
+                        item.type === "income" ? "dot-income" : "dot-expense"
+                      }`}
+                    ></div>
+                    <div className="timeline-content">
+                      <p className="timeline-date">
+                        {new Date(item.date).toLocaleDateString()}
+                      </p>
+                      <p>
+                        <strong>
+                          {item.type === "income" ? "Ingreso" : "Gasto"}:
+                        </strong>{" "}
+                        ${item.amount.toFixed(2)} {item.category && `| ${item.category}`}
+                      </p>
+                    </div>
+                  </div>
+                ))
+            )}
+          </div>
+        </div>
+
         {/* 🔹 Clasificación por categorías */}
         <div className="categories-section">
           <h3>🧠 Clasificación automática</h3>
@@ -194,7 +222,7 @@ export default function Dashboard() {
           </table>
         </div>
 
-        {/* 🔹 Tabla de movimientos */}
+        {/* 🔹 Movimientos recientes */}
         <div className="movements-section">
           <h3>📑 Movimientos recientes</h3>
           <table className="movements-table">

@@ -11,6 +11,7 @@ export default function Settings() {
   const [primaryColor, setPrimaryColor] = useState("#4CAF50");
   const [twoFactor, setTwoFactor] = useState(false);
   const [lowBalanceAlert, setLowBalanceAlert] = useState(false);
+  const [role, setRole] = useState("usuario"); // 🆕 Nuevo estado para rol
 
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
@@ -152,6 +153,30 @@ export default function Settings() {
             <p><strong>Correo:</strong> usuario@correo.com</p>
             <p><strong>Plan:</strong> Estándar</p>
             <p><strong>Estado:</strong> Activo ✅</p>
+          </div>
+
+          {/* ⚙️ Gestión de Roles y Permisos */}
+          <div className="settings-card roles-card">
+            <h2>Gestión de Roles y Permisos</h2>
+            <p>Define el nivel de acceso y control para tu cuenta:</p>
+
+            <select value={role} onChange={(e) => setRole(e.target.value)}>
+              <option value="admin">Administrador 👑</option>
+              <option value="usuario">Usuario Básico 👤</option>
+              <option value="auditor">Auditor 🔍</option>
+            </select>
+
+            <div className="role-description">
+              {role === "admin" && (
+                <p>🔹 Acceso completo: puede gestionar usuarios, editar datos y configurar el sistema.</p>
+              )}
+              {role === "usuario" && (
+                <p>🔹 Acceso estándar: puede registrar gastos e ingresos, pero no modificar configuraciones globales.</p>
+              )}
+              {role === "auditor" && (
+                <p>🔹 Solo lectura: puede visualizar reportes y registros sin modificar datos.</p>
+              )}
+            </div>
           </div>
 
           {/* 🧾 Personalización del sistema */}

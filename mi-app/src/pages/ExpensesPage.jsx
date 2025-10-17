@@ -24,11 +24,12 @@ export default function ExpensesPage() {
   const [list, setList] = useState([]);
   const [autoList, setAutoList] = useState([]);
   const [alertas, setAlertas] = useState([]);
+  const [monthComparison, setMonthComparison] = useState(null); // 🆕 Comparador
 
   const handleSearch = (e) => setFilter(e.target.value);
   const handleTypeChange = (e) => setType(e.target.value);
 
-  // 🔹 Clasificación automática de categorías
+  // 🔹 Clasificación automática
   const categorize = (desc) => {
     const text = desc.toLowerCase();
     if (text.includes("comida") || text.includes("super")) return "Alimentación";
@@ -38,7 +39,7 @@ export default function ExpensesPage() {
     return "Otros";
   };
 
-  // 🔹 Registro de movimientos
+  // 🔹 Agregar movimiento
   const handleAdd = (e) => {
     e.preventDefault();
     const form = e.target;
@@ -58,13 +59,11 @@ export default function ExpensesPage() {
     };
     setList([...list, newEntry]);
 
-    // alerta si el saldo cae bajo
     const totalIncome = list.filter((x) => x.tipo === "income").reduce((s, x) => s + x.amount, 0);
     const totalExpense = list.filter((x) => x.tipo === "expense").reduce((s, x) => s + x.amount, 0);
     const saldo = totalIncome - totalExpense;
-    if (saldo < 100) {
-      setAlertas([...alertas, "⚠️ Tu saldo está por debajo de $100"]);
-    }
+
+    if (saldo < 100) setAlertas([...alertas, "⚠️ Tu saldo está por debajo de $100"]);
 
     form.reset();
   };
@@ -98,7 +97,7 @@ export default function ExpensesPage() {
     doc.save("Movimientos.pdf");
   };
 
-  // 🔹 Datos para la gráfica
+  // 🔹 Agrupar por mes
   const grouped = {};
   list.forEach((i) => {
     const month = new Date(i.date).toLocaleString("default", { month: "short" });
@@ -127,6 +126,28 @@ export default function ExpensesPage() {
     ],
   };
 
+  // 🆕 Comparador de gastos entre meses consecutivos
+  useEffect(() => {
+    if (labels.length >= 2) {
+      const lastMonth = labels[labels.length - 1];
+      const prevMonth = labels[labels.length - 2];
+      const lastExpense = grouped[lastMonth]?.expense || 0;
+      const prevExpense = grouped[prevMonth]?.expense || 0;
+
+      const diff = lastExpense - prevExpense;
+      const percentage = prevExpense ? ((diff / prevExpense) * 100).toFixed(1) : 0;
+
+      setMonthComparison({
+        lastMonth,
+        prevMonth,
+        lastExpense,
+        prevExpense,
+        diff,
+        percentage,
+      });
+    }
+  }, [list]);
+
   return (
     <div className="expenses-page">
       {/* 🔹 Navbar */}
@@ -153,12 +174,7 @@ export default function ExpensesPage() {
 
         {/* 🔹 Filtros */}
         <div className="filter-bar">
-          <input
-            type="text"
-            placeholder="Buscar por descripción..."
-            value={filter}
-            onChange={handleSearch}
-          />
+          <input type="text" placeholder="Buscar por descripción..." value={filter} onChange={handleSearch} />
           <select value={type} onChange={handleTypeChange}>
             <option value="all">Todos</option>
             <option value="income">Ingresos</option>
@@ -167,7 +183,31 @@ export default function ExpensesPage() {
           <button onClick={generatePDF} className="btn-pdf">📄 Exportar PDF</button>
         </div>
 
-        {/* 🔹 Formulario combinado */}
+        {/* 🔹 Comparador de meses */}
+        {monthComparison && (
+          <div className="month-compare">
+            <h3>📊 Comparador mensual</h3>
+            <p>
+              Gastos de <strong>{monthComparison.lastMonth}</strong>: ${monthComparison.lastExpense.toFixed(2)}  
+              {" vs "}  
+              <strong>{monthComparison.prevMonth}</strong>: ${monthComparison.prevExpense.toFixed(2)}
+            </p>
+            <p
+              className={
+                monthComparison.diff > 0 ? "text-danger" :
+                monthComparison.diff < 0 ? "text-success" : "text-neutral"
+              }
+            >
+              {monthComparison.diff > 0
+                ? `⬆️ Aumentaron ${monthComparison.percentage}%`
+                : monthComparison.diff < 0
+                ? `⬇️ Disminuyeron ${Math.abs(monthComparison.percentage)}%`
+                : "⚖️ Sin cambios respecto al mes anterior"}
+            </p>
+          </div>
+        )}
+
+        {/* 🔹 Formularios */}
         <div className="form-container">
           <h3>➕ Nuevo Movimiento</h3>
           <form className="main-form" onSubmit={handleAdd}>
@@ -182,7 +222,6 @@ export default function ExpensesPage() {
           </form>
         </div>
 
-        {/* 🔹 Automatización */}
         <div className="form-container">
           <h3>🔁 Automatizar Gasto/Ingreso</h3>
           <form className="auto-form" onSubmit={handleAutoAdd}>
@@ -202,7 +241,7 @@ export default function ExpensesPage() {
           </form>
         </div>
 
-        {/* 🔹 Tabla de Movimientos */}
+        {/* 🔹 Tabla de movimientos */}
         <div className="table-container">
           <h3>📊 Historial de movimientos</h3>
           <ExpenseTable filter={filter} type={type} />
