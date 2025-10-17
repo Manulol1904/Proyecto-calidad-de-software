@@ -258,6 +258,100 @@
 }
 
 /* ===============================
+   📌 BOTONES ACCIONES CRUD
+==================================*/
+
+.admin-section button {
+  padding: 6px 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.admin-section button:hover {
+  opacity: 0.85;
+}
+
+/* ===============================
+   🛠 MODAL CRUD
+==================================*/
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.modal h3 {
+  margin-bottom: 10px;
+  color: #444;
+  text-align: center;
+}
+
+.modal input, .modal select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  width: 100%;
+  font-size: 0.95rem;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.modal-buttons button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.modal-buttons button[type="submit"] {
+  background: #52c49d;
+  color: white;
+}
+
+.modal-buttons button[type="submit"]:hover {
+  background: #45b38d;
+}
+
+.modal-buttons button[type="button"] {
+  background: #f87171;
+  color: white;
+}
+
+.modal-buttons button[type="button"]:hover {
+  background: #ef4444;
+}
+
+/* ===============================
    📱 RESPONSIVE DESIGN
 ==================================*/
 
@@ -280,5 +374,9 @@
 
   .summary-card p {
     font-size: 1.2rem;
+  }
+
+  .modal {
+    width: 90%;
   }
 }

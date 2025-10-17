@@ -23,13 +23,11 @@ export default function ExpensesPage() {
   const [type, setType] = useState("all");
   const [list, setList] = useState([]);
   const [autoList, setAutoList] = useState([]);
-  const [alertas, setAlertas] = useState([]);
-  const [monthComparison, setMonthComparison] = useState(null); // 🆕 Comparador
+  const [monthComparison, setMonthComparison] = useState(null);
 
   const handleSearch = (e) => setFilter(e.target.value);
   const handleTypeChange = (e) => setType(e.target.value);
 
-  // 🔹 Clasificación automática
   const categorize = (desc) => {
     const text = desc.toLowerCase();
     if (text.includes("comida") || text.includes("super")) return "Alimentación";
@@ -39,7 +37,6 @@ export default function ExpensesPage() {
     return "Otros";
   };
 
-  // 🔹 Agregar movimiento
   const handleAdd = (e) => {
     e.preventDefault();
     const form = e.target;
@@ -49,26 +46,11 @@ export default function ExpensesPage() {
     const tipo = form.tipo.value;
     const categoria = categorize(desc);
 
-    const newEntry = {
-      id: list.length + 1,
-      desc,
-      amount,
-      date,
-      tipo,
-      categoria,
-    };
+    const newEntry = { id: list.length + 1, desc, amount, date, tipo, categoria };
     setList([...list, newEntry]);
-
-    const totalIncome = list.filter((x) => x.tipo === "income").reduce((s, x) => s + x.amount, 0);
-    const totalExpense = list.filter((x) => x.tipo === "expense").reduce((s, x) => s + x.amount, 0);
-    const saldo = totalIncome - totalExpense;
-
-    if (saldo < 100) setAlertas([...alertas, "⚠️ Tu saldo está por debajo de $100"]);
-
     form.reset();
   };
 
-  // 🔹 Automatización recurrente
   const handleAutoAdd = (e) => {
     e.preventDefault();
     const form = e.target;
@@ -81,11 +63,9 @@ export default function ExpensesPage() {
 
     const newAuto = { id: autoList.length + 1, desc, amount, freq, pin, tipo, categoria };
     setAutoList([...autoList, newAuto]);
-    setAlertas([...alertas, `📌 Recordatorio fijado: ${desc}`]);
     form.reset();
   };
 
-  // 🔹 Generar PDF
   const generatePDF = () => {
     const doc = new jsPDF();
     doc.text("Reporte de Movimientos", 14, 20);
@@ -97,7 +77,6 @@ export default function ExpensesPage() {
     doc.save("Movimientos.pdf");
   };
 
-  // 🔹 Agrupar por mes
   const grouped = {};
   list.forEach((i) => {
     const month = new Date(i.date).toLocaleString("default", { month: "short" });
@@ -126,7 +105,6 @@ export default function ExpensesPage() {
     ],
   };
 
-  // 🆕 Comparador de gastos entre meses consecutivos
   useEffect(() => {
     if (labels.length >= 2) {
       const lastMonth = labels[labels.length - 1];
@@ -159,15 +137,6 @@ export default function ExpensesPage() {
           <Link to="/config">⚙️ Configuración</Link>
         </div>
       </nav>
-
-      {/* 🔹 Alertas */}
-      {alertas.length > 0 && (
-        <div className="alert-box">
-          {alertas.map((a, i) => (
-            <p key={i}>{a}</p>
-          ))}
-        </div>
-      )}
 
       <div className="expenses-content">
         <h1>Gestión Financiera</h1>
