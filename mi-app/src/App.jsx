@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import ExpensesPage from "./pages/ExpensesPage";
 import Settings from "./pages/Settings";
 import { useAuth } from "./context/AuthProvider";
+import ForgotPassword from "./components/Auth/ForgotPassword";
 
 function Protected({ children }) {
   const { user } = useAuth();
@@ -22,6 +23,7 @@ export default function App() {
       <Route path="/" element={<Dashboard />} />
       <Route path="/gastos" element={<ExpensesPage />} />
       <Route path="/config" element={<Settings />} />
+         <Route path="/forgot-password" element={<ForgotPassword />} />
     </Routes>
   );
 }

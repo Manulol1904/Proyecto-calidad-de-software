@@ -1,88 +1,216 @@
-/* Fondo general */
+/* === BASE DE LA PÁGINA === */
 .expenses-page {
+  background-color: #f4fff9;
   min-height: 100vh;
-  background: linear-gradient(135deg, #1e2a38, #263445);
+  font-family: "Inter", sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 3rem 1rem;
-  color: #f5f5f5;
-  font-family: 'Inter', sans-serif;
+  color: #1e2a36;
 }
 
-/* Título principal */
-.expenses-page h1 {
-  font-size: 2.5rem;
-  color: #52c49d;
-  margin-bottom: 2rem;
-  text-align: center;
-  letter-spacing: 1px;
-}
-
-/* Contenedor del formulario y tabla */
-.expenses-content {
-  background-color: #2f3e52;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  padding: 2rem;
-  width: 90%;
-  max-width: 900px;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-/* Inputs del formulario */
-.expenses-content input,
-.expenses-content select {
+/* === NAVBAR === */
+.navbar {
   width: 100%;
-  padding: 0.8rem;
-  border-radius: 8px;
-  border: none;
-  outline: none;
-  margin-bottom: 1rem;
-  background-color: #405166;
-  color: #f5f5f5;
-  font-size: 1rem;
+  background-color: #2f8f83;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 40px;
+  color: white;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Botón del formulario */
-.expenses-content button {
-  background-color: #52c49d;
-  color: #fff;
-  font-weight: bold;
-  border: none;
+.nav-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  margin-left: 25px;
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+}
+
+.nav-links a:hover {
+  opacity: 0.8;
+}
+
+/* === CONTENIDO PRINCIPAL === */
+.expenses-content {
+  width: 90%;
+  max-width: 1200px;
+  margin-top: 60px;
+  text-align: center;
+}
+
+.expenses-content h1 {
+  font-size: 2.3rem;
+  color: #2f8f83;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  color: #555;
+  margin-bottom: 40px;
+  font-size: 1.05rem;
+}
+
+/* === FILTROS === */
+.filter-bar {
+  background: white;
+  padding: 20px 25px;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.filter-bar input,
+.filter-bar select {
+  border: 1px solid #cce5de;
+  background-color: #f1f7f5;
   border-radius: 8px;
-  padding: 0.8rem 1.2rem;
-  cursor: pointer;
+  padding: 10px 14px;
+  font-size: 1rem;
+  color: #1e2a36;
   transition: all 0.3s ease;
 }
 
-.expenses-content button:hover {
-  background-color: #3ba77f;
+.filter-bar input:focus,
+.filter-bar select:focus {
+  outline: none;
+  border-color: #2f8f83;
+  background-color: #eafaf4;
 }
 
-/* Tabla de gastos */
-.expenses-table {
+/* === SECCIONES === */
+.expenses-sections {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+  gap: 30px;
+}
+
+.form-container,
+.table-container {
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 25px 30px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  text-align: left;
+}
+
+.form-container h3,
+.table-container h3 {
+  color: #2f8f83;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* === FORMULARIO === */
+.expense-form input,
+.expense-form select {
+  width: 100%;
+  background-color: #f7fdfb;
+  border: 1px solid #cce5de;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+}
+
+.expense-form button {
+  width: 100%;
+  background-color: #2f8f83;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.expense-form button:hover {
+  background-color: #256f68;
+}
+
+/* === TABLA === */
+.expense-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
-.expenses-table th,
-.expenses-table td {
-  padding: 0.75rem 1rem;
+.expense-table thead {
+  background-color: #2f8f83;
+  color: white;
+}
+
+.expense-table th,
+.expense-table td {
+  padding: 12px 16px;
   text-align: left;
-  border-bottom: 1px solid #4c5c6e;
+  border-bottom: 1px solid #e6f0ed;
 }
 
-.expenses-table th {
-  color: #52c49d;
-  text-transform: uppercase;
-  font-size: 0.9rem;
-  letter-spacing: 0.5px;
+.expense-table tbody tr:hover {
+  background-color: #f5fdf9;
 }
 
-.expenses-table tr:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .expenses-sections {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 🔹 Estilo para el formulario de ingresos */
+.ingreso-container {
+  background-color: #f9fdfb;
+  border: 1px solid #d9f0e8;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.ingreso-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ingreso-form .form-input {
+  padding: 0.7rem;
+  border: 1px solid #c9e8dc;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.btn-ingreso {
+  background-color: #52c49d;
+  color: white;
+  border: none;
+  padding: 0.8rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-weight: bold;
+}
+
+.btn-ingreso:hover {
+  background-color: #3da17d;
 }
