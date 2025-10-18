@@ -32,32 +32,37 @@ export default function Dashboard() {
   const { list, user } = useExpenses();
   const navigate = useNavigate();
 
-  // 🔹 Función de cerrar sesión
   const handleLogout = () => {
-    // Aquí puedes limpiar context, tokens, localStorage, etc.
-    localStorage.removeItem("userToken"); // ejemplo
-    navigate("/login"); // redirige a login
+    localStorage.removeItem("token");
+    navigate("/login");
   };
 
-  // 🔹 Agrupar por fecha (saldo neto diario)
+  // 🔹 Agrupar saldo neto diario (ingresos - gastos)
   const grouped = {};
   list.forEach((e) => {
     const day = new Date(e.date).toLocaleDateString();
-    grouped[day] = (grouped[day] || 0) + (e.type === "income" ? e.amount : -e.amount);
+    const amount = Number(e.amount) || 0;
+    const sign = e.type === "income" ? 1 : -1;
+    grouped[day] = (grouped[day] || 0) + amount * sign;
   });
 
-  const labels = Object.keys(grouped).sort((a, b) => new Date(a) - new Date(b));
+  const labels = Object.keys(grouped).sort(
+    (a, b) => new Date(a) - new Date(b)
+  );
   const dataValues = labels.map((l) => grouped[l]);
 
   // 🔹 Totales
-  const totalIncomeFromExpenses = list
+  const totalIncome = list
     .filter((e) => e.type === "income")
-    .reduce((sum, e) => sum + e.amount, 0);
-  const totalIncome = totalIncomeFromExpenses;
+    .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+
   const totalExpense = list
     .filter((e) => e.type === "expense")
-    .reduce((sum, e) => sum + e.amount, 0);
-  const balance = totalIncome - totalExpense;
+    .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+
+  // 🔹 Balance general
+  const userIncome = Number(user?.income) || 0;
+  const balance = userIncome + totalIncome - totalExpense;
   const lowBalance = balance < 100;
 
   // 🔹 Datos para gráficos
@@ -76,40 +81,45 @@ export default function Dashboard() {
   };
 
   const dataBar = {
-    labels: ["Ingresos", "Gastos"],
+    labels: ["Ingreso del usuario", "Ingresos", "Gastos"],
     datasets: [
       {
         label: "Monto ($)",
-        data: [totalIncome, totalExpense],
-        backgroundColor: ["#4CAF50", "#E74C3C"],
+        data: [userIncome, totalIncome, totalExpense],
+        backgroundColor: ["#4CAF50", "#52c49d", "#E74C3C"],
         borderRadius: 10,
       },
     ],
   };
 
   const dataDoughnut = {
-    labels: ["Ingresos", "Gastos"],
+    labels: ["Ingreso del usuario", "Ingresos", "Gastos"],
     datasets: [
       {
-        data: [totalIncome, totalExpense],
-        backgroundColor: ["#52c49d", "#f87171"],
+        data: [userIncome, totalIncome, totalExpense],
+        backgroundColor: ["#4CAF50", "#52c49d", "#f87171"],
         hoverOffset: 6,
       },
     ],
   };
 
-  // 🔹 Clasificación por categorías
+  // 🔹 Clasificación de gastos por categorías
   const categories = {};
-  list.forEach((e) => {
-    const cat = e.category || "Sin categoría";
-    categories[cat] = (categories[cat] || 0) + e.amount;
-  });
+  list
+    .filter((e) => e.type === "expense")
+    .forEach((e) => {
+      const cat = e.category || "Sin categoría";
+      const amount = Number(e.amount) || 0;
+      categories[cat] = (categories[cat] || 0) + amount;
+    });
 
   // 🔹 Alertas
   const alerts = [];
   if (lowBalance) alerts.push("⚠️ Saldo bajo: considera reducir gastos.");
-  if (totalExpense > totalIncome) alerts.push("🚨 Gastas más de lo que ingresas este mes.");
-  if (list.length === 0) alerts.push("📭 Aún no tienes movimientos registrados.");
+  if (totalExpense > userIncome + totalIncome)
+    alerts.push("🚨 Gastas más de lo que ingresas este mes.");
+  if (list.length === 0)
+    alerts.push("📭 Aún no tienes movimientos registrados.");
 
   return (
     <div className="dashboard">
@@ -120,7 +130,9 @@ export default function Dashboard() {
           <Link to="/">🏠 Dashboard</Link>
           <Link to="/gastos">💰 Gastos</Link>
           <Link to="/config">⚙️ Configuración</Link>
-          <button className="logout-btn" onClick={handleLogout}>🚪 Cerrar sesión</button>
+          <button className="logout-btn" onClick={handleLogout}>
+            🚪 Cerrar sesión
+          </button>
         </div>
       </nav>
 
@@ -133,18 +145,22 @@ export default function Dashboard() {
           {user && (
             <div className="summary-card user-income">
               <h3>💎 Ingreso del usuario</h3>
-              <p>${user.income.toFixed(2)}</p>
+              <p>${userIncome.toFixed(2)}</p>
             </div>
           )}
           <div className="summary-card income">
-            <h3>💰 Ingresos</h3>
+            <h3>💰 Total Ingresos</h3>
             <p>${totalIncome.toFixed(2)}</p>
           </div>
           <div className="summary-card expense">
-            <h3>💸 Gastos</h3>
+            <h3>💸 Total Gastos</h3>
             <p>${totalExpense.toFixed(2)}</p>
           </div>
-          <div className="summary-card balance">
+          <div
+            className={`summary-card balance ${
+              balance < 0 ? "negative" : "positive"
+            }`}
+          >
             <h3>💵 Balance</h3>
             <p>${balance.toFixed(2)}</p>
           </div>
@@ -169,7 +185,7 @@ export default function Dashboard() {
             <Line data={dataLine} />
           </div>
           <div className="chart-card">
-            <h3>💸 Ingresos vs Gastos</h3>
+            <h3>💸 Ingreso vs Gastos</h3>
             <Bar data={dataBar} />
           </div>
           <div className="chart-card">
@@ -178,7 +194,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* 🔹 Categorías */}
+        {/* 🔹 Clasificación por categorías */}
         <div className="categories-section">
           <h3>🧠 Clasificación automática</h3>
           <table className="category-table">
@@ -200,7 +216,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* 🔹 Footer universal */}
+      {/* 🔹 Footer */}
       <footer className="app-footer">
         <p>Manuel Lozano & Cristobal Perez - Ingenieros de Sistemas</p>
       </footer>

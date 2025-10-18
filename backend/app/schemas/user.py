@@ -52,8 +52,10 @@ class UserResponse(UserBase):
                 "id": "507f1f77bcf86cd799439011",
                 "username": "john",
                 "email": "john@example.com",
+                "full_name": "John Doe",
                 "is_active": True,
-                "created_at": "2024-01-15T10:30:00Z"
+                "created_at": "2024-01-15T10:30:00Z",
+                "income": 2500000
             }
         }
     }
@@ -63,13 +65,15 @@ class UserUpdate(BaseModel):
     username: Optional[str] = Field(None, min_length=3, max_length=50)
     full_name: Optional[str] = None
     is_active: Optional[bool] = None
+    income: Optional[float] = Field(None, ge=0)
     
     model_config = {
         "json_schema_extra": {
             "example": {
                 "username": "johndoe_updated",
                 "full_name": "John Doe Updated",
-                "is_active": True
+                "is_active": True,
+                "income": 3000000
             }
         }
     }
@@ -78,6 +82,7 @@ class Token(BaseModel):
     """Schema for authentication token"""
     access_token: str
     token_type: str
+    user: Optional[dict] = None
 
 class TokenData(BaseModel):
     """Schema for token data"""

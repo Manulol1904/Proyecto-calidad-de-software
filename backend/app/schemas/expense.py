@@ -9,6 +9,8 @@ class ExpenseBase(BaseModel):
     category: str = Field(..., min_length=1, max_length=50)
     description: Optional[str] = Field(None, max_length=500)
     date: datetime = Field(default_factory=datetime.utcnow)
+    type: str = Field(default="expense", pattern="^(income|expense)$")
+
 
 class ExpenseCreate(ExpenseBase):
     """Schema for expense creation"""
