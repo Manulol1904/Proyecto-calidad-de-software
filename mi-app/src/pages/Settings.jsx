@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../assets/styles/config.css";
 
 export default function Settings({ backendData, updateBackend }) {
+  const navigate = useNavigate();
+
   // 🔹 Estados para campos editables
   const [balance, setBalance] = useState(backendData?.balance || 0); 
   const [photo, setPhoto] = useState(backendData?.photo || null);
@@ -38,20 +40,27 @@ export default function Settings({ backendData, updateBackend }) {
     updateBackend?.({ twoFactor: !twoFactor });
   };
 
+  // Función cerrar sesión
+  const handleLogout = () => {
+    updateBackend?.({ action: "logout" });
+    navigate("/login"); // Redirige a login
+  };
+
   return (
     <div className="settings-page">
-      {/* 🔹 Navbar */}
+      {/* 🔹 Navbar fijo */}
       <nav className="navbar">
         <h2 className="nav-title">Mi Panel</h2>
         <div className="nav-links">
           <Link to="/">🏠 Dashboard</Link>
           <Link to="/gastos">💰 Gastos</Link>
           <Link to="/config">⚙️ Configuración</Link>
+          <button className="logout-btn" onClick={handleLogout}>🚪 Cerrar sesión</button>
         </div>
       </nav>
 
-      {/* 🔹 Contenido principal */}
-      <div className="settings-container">
+      {/* 🔹 Contenido principal con padding-top para navbar */}
+      <div className="settings-container" style={{ paddingTop: "90px" }}>
         <h1>Configuración del Usuario</h1>
         <p className="subtitle">Gestiona tu cuenta, tu perfil y tus preferencias.</p>
 
@@ -60,13 +69,8 @@ export default function Settings({ backendData, updateBackend }) {
           <div className="settings-card profile">
             <h2>Perfil</h2>
             <div className="profile-photo">
-              <img
-                src={photo || ""}
-                alt="Foto de perfil"
-              />
-              <label htmlFor="photo-upload" className="upload-btn">
-                Cambiar foto
-              </label>
+              <img src={photo || ""} alt="Foto de perfil" />
+              <label htmlFor="photo-upload" className="upload-btn">Cambiar foto</label>
               <input
                 id="photo-upload"
                 type="file"
@@ -78,7 +82,6 @@ export default function Settings({ backendData, updateBackend }) {
               <p><strong>Nombre:</strong> {backendData?.name || ""}</p>
               <p><strong>Correo:</strong> {backendData?.email || ""}</p>
               <p><strong>Miembro desde:</strong> {backendData?.memberSince || ""}</p>
-
               <div className="editable-fields">
                 <label>Idioma:</label>
                 <select value={language} onChange={handleLanguageChange}>
@@ -86,7 +89,6 @@ export default function Settings({ backendData, updateBackend }) {
                   <option value="es">Español</option>
                   <option value="en">Inglés</option>
                 </select>
-
                 <label>Zona horaria:</label>
                 <select
                   value={backendData?.timezone || ""}
@@ -142,23 +144,19 @@ export default function Settings({ backendData, updateBackend }) {
             </div>
           </div>
 
-          {/* 💰 Saldo */}
+          {/* 💰 Saldo disponible */}
           <div className="settings-card balance-card">
             <h2>Saldo disponible</h2>
             <div className="balance-display">
-              <input
-                type="number"
-                value={balance}
-                onChange={handleBalanceChange}
-              />
-              <p className="balance-usd">USD {backendData?.usdBalance || 0}</p>
+              <div className="balance-item">
+                <p className="balance-label">COP:</p>
+                <p className="balance-value">{balance.toLocaleString('es-CO')} COP</p>
+              </div>
+              <div className="balance-item">
+                <p className="balance-label">USD:</p>
+                <p className="balance-value">{backendData?.usdBalance || 0} USD</p>
+              </div>
             </div>
-            <button className="link-btn" onClick={() => updateBackend?.({ action: "linkBank" })}>
-              Vincular cuenta bancaria
-            </button>
-            <button className="link-btn" onClick={() => updateBackend?.({ action: "setGoal" })}>
-              Definir meta de ahorro
-            </button>
           </div>
 
           {/* 📄 Datos de cuenta */}
@@ -195,6 +193,11 @@ export default function Settings({ backendData, updateBackend }) {
           </div>
         </div>
       </div>
+
+      {/* 🔹 Footer universal */}
+      <footer className="app-footer">
+        <p>Manuel Lozano & Cristobal Perez - Ingenieros de Sistemas</p>
+      </footer>
     </div>
   );
 }

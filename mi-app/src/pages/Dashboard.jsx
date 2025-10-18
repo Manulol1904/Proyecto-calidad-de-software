@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useExpenses } from "../context/ExpensesProvider";
 import { Line, Bar, Doughnut } from "react-chartjs-2";
 import {
@@ -30,6 +30,14 @@ ChartJS.register(
 
 export default function Dashboard() {
   const { list, user } = useExpenses();
+  const navigate = useNavigate();
+
+  // 🔹 Función de cerrar sesión
+  const handleLogout = () => {
+    // Aquí puedes limpiar context, tokens, localStorage, etc.
+    localStorage.removeItem("userToken"); // ejemplo
+    navigate("/login"); // redirige a login
+  };
 
   // 🔹 Agrupar por fecha (saldo neto diario)
   const grouped = {};
@@ -112,6 +120,7 @@ export default function Dashboard() {
           <Link to="/">🏠 Dashboard</Link>
           <Link to="/gastos">💰 Gastos</Link>
           <Link to="/config">⚙️ Configuración</Link>
+          <button className="logout-btn" onClick={handleLogout}>🚪 Cerrar sesión</button>
         </div>
       </nav>
 
@@ -190,6 +199,11 @@ export default function Dashboard() {
           </table>
         </div>
       </div>
+
+      {/* 🔹 Footer universal */}
+      <footer className="app-footer">
+        <p>Manuel Lozano & Cristobal Perez - Ingenieros de Sistemas</p>
+      </footer>
     </div>
   );
 }

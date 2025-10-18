@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { Bar, Doughnut } from "react-chartjs-2";
@@ -18,14 +18,16 @@ import "../assets/styles/admin.css";
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [config, setConfig] = useState({ minBalance: 100 });
   const [auditData, setAuditData] = useState({});
-  const [modalData, setModalData] = useState(null); // Para CRUD en modal
-  const [modalType, setModalType] = useState(""); // "user" o "transaction"
+  const [modalData, setModalData] = useState(null);
+  const [modalType, setModalType] = useState("");
 
+  // --- Fetch inicial ---
   useEffect(() => {
     async function fetchData() {
       try {
@@ -51,11 +53,16 @@ export default function AdminDashboard() {
         setLoading(false);
       }
     }
-
     fetchData();
   }, []);
 
-  // --- CRUD FUNCIONES ---
+  // --- Función Cerrar Sesión ---
+  const handleLogout = () => {
+    localStorage.removeItem("token"); // ejemplo
+    navigate("/login");
+  };
+
+  // --- CRUD usuarios ---
   const saveUser = (user) => {
     if (user.id) {
       setUsers(users.map((u) => (u.id === user.id ? user : u)));
@@ -81,6 +88,7 @@ export default function AdminDashboard() {
     fetch(`/api/users/${id}`, { method: "DELETE" });
   };
 
+  // --- CRUD transacciones ---
   const saveTransaction = (t) => {
     if (t.id) {
       setTransactions(transactions.map((tr) => (tr.id === t.id ? t : tr)));
@@ -106,6 +114,7 @@ export default function AdminDashboard() {
     fetch(`/api/transactions/${id}`, { method: "DELETE" });
   };
 
+  // --- Modal ---
   const openModal = (type, data = null) => {
     setModalType(type);
     if (type === "user") {
@@ -127,20 +136,34 @@ export default function AdminDashboard() {
     setModalType("");
   };
 
-  // --- CÁLCULOS Y GRÁFICAS ---
+  // --- Cálculos y gráficas ---
   const totalIncome = transactions.filter((t) => t.type === "Ingreso").reduce((sum, t) => sum + t.amount, 0);
   const totalExpense = transactions.filter((t) => t.type === "Gasto").reduce((sum, t) => sum + t.amount, 0);
 
   const dataBar = {
     labels: ["Ingresos", "Gastos"],
-    datasets: [{ label: "Monto total ($)", data: [totalIncome, totalExpense], backgroundColor: ["#4CAF50", "#E74C3C"], borderRadius: 8 }],
+    datasets: [
+      {
+        label: "Monto total ($)",
+        data: [totalIncome, totalExpense],
+        backgroundColor: ["#4CAF50", "#E74C3C"],
+        borderRadius: 8,
+      },
+    ],
   };
 
   const dataDoughnut = {
     labels: ["Usuarios activos", "Usuarios inactivos"],
-    datasets: [{ data: [users.filter((u) => u.active).length, users.filter((u) => !u.active).length], backgroundColor: ["#52c49d", "#f87171"], hoverOffset: 6 }],
+    datasets: [
+      {
+        data: [users.filter((u) => u.active).length, users.filter((u) => !u.active).length],
+        backgroundColor: ["#52c49d", "#f87171"],
+        hoverOffset: 6,
+      },
+    ],
   };
 
+  // --- Generar PDF ---
   const generatePDF = () => {
     const doc = new jsPDF();
     doc.setFontSize(16);
@@ -149,11 +172,19 @@ export default function AdminDashboard() {
     doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 14, 30);
 
     doc.text("Usuarios registrados:", 14, 40);
-    doc.autoTable({ startY: 45, head: [["ID", "Nombre", "Correo", "Cuentas", "Estado"]], body: users.map((u) => [u.id, u.name, u.email, u.accounts, u.active ? "Activo" : "Inactivo"]) });
+    doc.autoTable({
+      startY: 45,
+      head: [["ID", "Nombre", "Correo", "Cuentas", "Estado"]],
+      body: users.map((u) => [u.id, u.name, u.email, u.accounts, u.active ? "Activo" : "Inactivo"]),
+    });
 
     const lastY = doc.lastAutoTable.finalY + 10;
     doc.text("Transacciones registradas:", 14, lastY);
-    doc.autoTable({ startY: lastY + 5, head: [["ID", "Usuario", "Tipo", "Monto", "Fecha"]], body: transactions.map((t) => [t.id, t.user, t.type, `$${t.amount.toFixed(2)}`, t.date]) });
+    doc.autoTable({
+      startY: lastY + 5,
+      head: [["ID", "Usuario", "Tipo", "Monto", "Fecha"]],
+      body: transactions.map((t) => [t.id, t.user, t.type, `$${t.amount.toFixed(2)}`, t.date]),
+    });
 
     doc.save("Reporte_Administrativo.pdf");
   };
@@ -169,6 +200,7 @@ export default function AdminDashboard() {
           <Link to="/gastos">💰 Gastos</Link>
           <Link to="/config">⚙️ Configuración</Link>
           <Link to="/admin">🧑‍💼 Admin</Link>
+          <button className="logout-btn" onClick={handleLogout}>🚪 Cerrar sesión</button>
         </div>
       </nav>
 
@@ -237,8 +269,6 @@ export default function AdminDashboard() {
           </table>
         </div>
 
-       
-
         {/* AUDITORÍA */}
         <div className="admin-section audit-section">
           <h2>Auditoría y Seguridad</h2>
@@ -253,6 +283,10 @@ export default function AdminDashboard() {
           <button onClick={generatePDF} className="btn-pdf">📄 Generar Reporte PDF</button>
         </div>
       </div>
+
+      <footer className="app-footer">
+        <p>Manuel Lozano & Cristobal Perez - Ingenieros de Sistemas</p>
+      </footer>
 
       {/* MODAL */}
       {modalData && (

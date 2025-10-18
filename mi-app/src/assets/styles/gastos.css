@@ -1,7 +1,6 @@
 /* ==============================
    💰 ESTILOS DE LA PÁGINA DE GASTOS
    ============================== */
-
 .expenses-page {
   font-family: "Poppins", sans-serif;
   background-color: #f4f6f9;
@@ -10,33 +9,71 @@
   color: #333;
 }
 
-/* 🔹 Navbar */
+/* ==============================
+   🔹 Navbar fijo en la parte superior
+   ============================== */
 .navbar {
+  position: fixed;       /* Fijo en la parte superior */
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;        /* Siempre arriba de otros elementos */
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: #0077cc;
   color: #fff;
   padding: 15px 30px;
-  border-radius: 12px;
-  margin-bottom: 40px;
+  border-radius: 0;     /* Quitar bordes redondeados */
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
+/* Título del navbar */
 .nav-title {
   font-size: 1.6rem;
   font-weight: 600;
 }
 
-.nav-links a {
-  color: #fff;
-  margin-left: 25px;
-  text-decoration: none;
-  transition: 0.3s ease;
+/* Links y botón cerrar sesión */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
-.nav-links a:hover {
+.nav-links a,
+.nav-links button.logout-btn {
+  color: #fff;
+  margin-left: 15px;
+  text-decoration: none;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nav-links a:hover,
+.nav-links button.logout-btn:hover {
   text-decoration: underline;
+  color: #ffeb3b;
+}
+
+.nav-links button.logout-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+.nav-links button.logout-btn:hover {
+  background-color: #005fa3;
+  color: white;
+}
+
+/* ==============================
+   🔹 Ajuste del contenido debajo del navbar
+   ============================== */
+.expenses-content {
+  padding-top: 90px;  /* Altura del navbar + margen */
 }
 
 /* ==============================
@@ -221,7 +258,6 @@
   margin-bottom: 15px;
 }
 
-/* El ExpenseTable usa su propio CSS, pero damos soporte base */
 .expense-table {
   width: 100%;
   border-collapse: collapse;
@@ -276,6 +312,18 @@
     align-items: flex-start;
   }
 
+  .nav-links {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .nav-links a,
+  .nav-links button.logout-btn {
+    margin-left: 0;
+    width: 100%;
+    text-align: left;
+  }
+
   .filter-bar {
     flex-direction: column;
     align-items: stretch;
@@ -294,5 +342,9 @@
 
   .chart-container {
     padding: 15px;
+  }
+
+  .expenses-content {
+    padding-top: 120px; /* Ajuste extra para navbar en móviles */
   }
 }

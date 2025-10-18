@@ -126,6 +126,11 @@ export default function ExpensesPage() {
     }
   }, [list]);
 
+  const handleLogout = () => {
+    // Aquí iría tu lógica real de logout
+    alert("Cerrando sesión...");
+  };
+
   return (
     <div className="expenses-page">
       {/* 🔹 Navbar */}
@@ -135,6 +140,7 @@ export default function ExpensesPage() {
           <Link to="/">🏠 Dashboard</Link>
           <Link to="/gastos">💰 Gastos</Link>
           <Link to="/config">⚙️ Configuración</Link>
+          <button className="logout-btn" onClick={handleLogout}>🚪 Cerrar sesión</button>
         </div>
       </nav>
 
@@ -222,6 +228,11 @@ export default function ExpensesPage() {
           <Line data={data} />
         </div>
       </div>
+
+      {/* 🔹 Footer universal */}
+      <footer className="app-footer">
+        <p>Manuel Lozano & Cristobal Perez - Ingenieros de Sistemas</p>
+      </footer>
     </div>
   );
 }

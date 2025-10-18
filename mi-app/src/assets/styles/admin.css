@@ -19,6 +19,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .nav-title {
@@ -26,10 +27,16 @@
   font-weight: 600;
 }
 
+.nav-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
 .nav-links a {
   color: white;
   text-decoration: none;
-  margin-left: 20px;
   font-weight: 500;
   transition: opacity 0.2s ease-in-out;
 }
@@ -38,9 +45,25 @@
   opacity: 0.8;
 }
 
+.nav-links .logout-btn {
+  background-color: #ef4444;
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s ease-in-out;
+}
+
+.nav-links .logout-btn:hover {
+  background-color: #b91c1c;
+}
+
 /* 🔹 Contenido principal */
 .admin-content {
   padding: 30px 50px;
+  flex: 1;
 }
 
 .admin-content h1 {
@@ -352,12 +375,33 @@
 }
 
 /* ===============================
+   🔹 FOOTER UNIVERSAL
+==================================*/
+
+.app-footer {
+  width: 100%;
+  padding: 12px 0;
+  background-color: #52c49d; /* mismo color del navbar */
+  color: white;
+  text-align: center;
+  font-weight: bold;
+  border-top: 1px solid #45b38d; /* sutil separación */
+  margin-top: auto;
+}
+
+/* ===============================
    📱 RESPONSIVE DESIGN
 ==================================*/
 
+@media (max-width: 1024px) {
+  .admin-content {
+    padding: 20px 30px;
+  }
+}
+
 @media (max-width: 768px) {
   .admin-content {
-    padding: 20px;
+    padding: 15px 20px;
   }
 
   .charts-container {
@@ -378,5 +422,22 @@
 
   .modal {
     width: 90%;
+  }
+
+  .nav-links {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .nav-links a, .nav-links .logout-btn {
+    margin: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-summary {
+    grid-template-columns: 1fr;
   }
 }
