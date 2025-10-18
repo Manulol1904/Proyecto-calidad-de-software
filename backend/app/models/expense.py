@@ -13,6 +13,7 @@ class Expense(BaseModel):
     category: str = Field(..., min_length=1, max_length=50)
     description: Optional[str] = Field(None, max_length=500)
     date: datetime = Field(default_factory=datetime.utcnow)
+    type: str = Field(default="expense", pattern="^(income|expense)$")  # ✅ Campo type
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     
@@ -26,7 +27,8 @@ class Expense(BaseModel):
                 "amount": 25.50,
                 "category": "Alimentación",
                 "description": "Almuerzo en restaurante",
-                "date": "2024-01-15T12:00:00Z"
+                "date": "2024-01-15T12:00:00Z",
+                "type": "expense"
             }
         }
     }

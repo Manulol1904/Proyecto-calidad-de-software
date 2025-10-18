@@ -39,10 +39,11 @@ async def get_expenses(
             id=str(expense.id),
             user_id=str(expense.user_id),
             title=expense.title,
-            amount=expense.amount,
+            amount=abs(expense.amount),  # ✅ Siempre positivo
             category=expense.category,
             description=expense.description,
             date=expense.date,
+            type=expense.type,  # ✅ Incluir type
             created_at=expense.created_at,
             updated_at=expense.updated_at
         )
@@ -75,10 +76,11 @@ async def get_expense(
         id=str(expense.id),
         user_id=str(expense.user_id),
         title=expense.title,
-        amount=expense.amount,
+        amount=abs(expense.amount),  # ✅ Siempre positivo
         category=expense.category,
         description=expense.description,
         date=expense.date,
+        type=expense.type,  # ✅ Incluir type
         created_at=expense.created_at,
         updated_at=expense.updated_at
     )
@@ -91,16 +93,23 @@ async def create_expense(
     """Create a new expense"""
     expense_service = ExpenseService()
     
+    # ✅ DEBUG: Imprimir lo que llega
+    print(f"📥 Datos recibidos: {expense_data.dict()}")
+    
     expense = await expense_service.create_expense(str(current_user.id), expense_data)
+    
+    # ✅ DEBUG: Imprimir lo que se guardó
+    print(f"💾 Guardado en DB: amount={expense.amount}, type={expense.type}")
     
     return ExpenseResponse(
         id=str(expense.id),
         user_id=str(expense.user_id),
         title=expense.title,
-        amount=expense.amount,
+        amount=abs(expense.amount),  # ✅ Siempre positivo
         category=expense.category,
         description=expense.description,
         date=expense.date,
+        type=expense.type,  # ✅ CRÍTICO: devolver el type
         created_at=expense.created_at,
         updated_at=expense.updated_at
     )
@@ -128,10 +137,11 @@ async def update_expense(
         id=str(expense.id),
         user_id=str(expense.user_id),
         title=expense.title,
-        amount=expense.amount,
+        amount=abs(expense.amount),  # ✅ Siempre positivo
         category=expense.category,
         description=expense.description,
         date=expense.date,
+        type=expense.type,  # ✅ Incluir type
         created_at=expense.created_at,
         updated_at=expense.updated_at
     )

@@ -9,7 +9,7 @@ class ExpenseBase(BaseModel):
     category: str = Field(..., min_length=1, max_length=50)
     description: Optional[str] = Field(None, max_length=500)
     date: datetime = Field(default_factory=datetime.utcnow)
-    type: str = Field(default="expense", pattern="^(income|expense)$")
+    type: str = Field(default="expense", pattern="^(income|expense)$")  # ✅ Campo type requerido
 
 
 class ExpenseCreate(ExpenseBase):
@@ -22,7 +22,8 @@ class ExpenseCreate(ExpenseBase):
                 "amount": 25.50,
                 "category": "Alimentación",
                 "description": "Almuerzo en restaurante",
-                "date": "2024-01-15T12:00:00Z"
+                "date": "2024-01-15T12:00:00Z",
+                "type": "expense"
             }
         }
     }
@@ -34,6 +35,7 @@ class ExpenseUpdate(BaseModel):
     category: Optional[str] = Field(None, min_length=1, max_length=50)
     description: Optional[str] = Field(None, max_length=500)
     date: Optional[datetime] = None
+    type: Optional[str] = Field(None, pattern="^(income|expense)$")
     
     model_config = {
         "json_schema_extra": {
@@ -41,7 +43,8 @@ class ExpenseUpdate(BaseModel):
                 "title": "Comida actualizada",
                 "amount": 30.00,
                 "category": "Alimentación",
-                "description": "Cena en restaurante"
+                "description": "Cena en restaurante",
+                "type": "expense"
             }
         }
     }
@@ -64,6 +67,7 @@ class ExpenseResponse(ExpenseBase):
                 "category": "Alimentación",
                 "description": "Almuerzo en restaurante",
                 "date": "2024-01-15T12:00:00Z",
+                "type": "expense",
                 "created_at": "2024-01-15T10:30:00Z",
                 "updated_at": "2024-01-15T10:30:00Z"
             }
@@ -136,7 +140,8 @@ class WebSocketMessage(BaseModel):
                 "payload": {
                     "id": "507f1f77bcf86cd799439011",
                     "title": "Nuevo gasto",
-                    "amount": 25.50
+                    "amount": 25.50,
+                    "type": "expense"
                 }
             }
         }

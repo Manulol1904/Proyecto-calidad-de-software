@@ -54,11 +54,20 @@ export function ExpensesProvider({ children }) {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const expenses = (res.data.expenses || []).map((exp) => ({
-        ...exp,
-        amount: Number(exp.amount),
-        type: exp.type || (exp.amount >= 0 ? "income" : "expense"),
-      }));
+      console.log("📥 RESPUESTA RAW DEL BACKEND:", res.data);
+
+      // ✅ Normalizar datos del backend
+      const expenses = (res.data.expenses || []).map((exp) => {
+        console.log(`🔍 Procesando: ${exp.title}, type=${exp.type}, amount=${exp.amount}`);
+        
+        return {
+          ...exp,
+          amount: Math.abs(Number(exp.amount)), // Siempre positivo
+          type: exp.type || "expense", // Usar el type del backend
+        };
+      });
+
+      console.log("✅ DATOS NORMALIZADOS:", expenses);
 
       dispatch({ type: "LOAD_SUCCESS", payload: expenses });
     } catch (err) {
@@ -76,29 +85,37 @@ export function ExpensesProvider({ children }) {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token");
 
+      console.log("📤 ENVIANDO AL BACKEND:", expenseData);
+
+      // ✅ Enviar amount siempre positivo y type explícito
       const finalData = {
         ...expenseData,
-        type: expenseData.type || "expense",
-        amount:
-          expenseData.type === "expense"
-            ? -Math.abs(Number(expenseData.amount))
-            : Math.abs(Number(expenseData.amount)),
+        amount: Math.abs(Number(expenseData.amount)), // Siempre positivo
+        type: expenseData.type || "expense", // Asegurar que type está definido
       };
+
+      console.log("📤 DATOS FINALES:", finalData);
 
       const res = await api.post("/expenses", finalData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      console.log("📥 RESPUESTA DEL BACKEND:", res.data);
+
+      // ✅ Normalizar respuesta del backend
       const newExp = {
         ...res.data,
-        amount: Number(res.data.amount),
-        type: res.data.type || (res.data.amount >= 0 ? "income" : "expense"),
+        amount: Math.abs(Number(res.data.amount)), // Siempre positivo
+        type: res.data.type || "expense", // Usar el type del backend
       };
+
+      console.log("✅ EXPENSE NORMALIZADO:", newExp);
 
       dispatch({ type: "ADD", payload: newExp });
       return newExp;
     } catch (err) {
       console.error("❌ Error al agregar:", err);
+      console.error("❌ Respuesta error:", err.response?.data);
       throw err;
     }
   };
@@ -152,13 +169,20 @@ export function ExpensesProvider({ children }) {
     ws.onmessage = (evt) => {
       try {
         const msg = JSON.parse(evt.data);
+        console.log("📨 WEBSOCKET MENSAJE:", msg);
+        
         if (msg.type === "new_expense") {
           const exp = msg.payload;
+          console.log("📨 WS EXPENSE:", exp);
+          
+          // ✅ Normalizar datos del WebSocket
           const normalized = {
             ...exp,
-            amount: Number(exp.amount),
-            type: exp.type || (exp.amount >= 0 ? "income" : "expense"),
+            amount: Math.abs(Number(exp.amount)), // Siempre positivo
+            type: exp.type || "expense", // Usar el type del mensaje
           };
+          
+          console.log("✅ WS NORMALIZADO:", normalized);
           dispatch({ type: "ADD", payload: normalized });
         }
       } catch (e) {
@@ -172,13 +196,15 @@ export function ExpensesProvider({ children }) {
   // 🔹 Totales
   const totalIncome = state.list
     .filter((i) => i.type === "income")
-    .reduce((sum, i) => sum + i.amount, 0);
+    .reduce((sum, i) => sum + Math.abs(Number(i.amount) || 0), 0);
 
   const totalExpense = state.list
     .filter((i) => i.type === "expense")
-    .reduce((sum, i) => sum + Math.abs(i.amount), 0);
+    .reduce((sum, i) => sum + Math.abs(Number(i.amount) || 0), 0);
 
   const balance = totalIncome - totalExpense;
+
+  console.log("📊 TOTALES CALCULADOS:", { totalIncome, totalExpense, balance });
 
   return (
     <ExpensesContext.Provider

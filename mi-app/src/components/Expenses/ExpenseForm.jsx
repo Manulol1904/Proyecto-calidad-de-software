@@ -15,11 +15,11 @@ export default function ExpenseForm() {
     try {
       await addExpense({
         title,
-        amount: Number(amount),
+        amount: Math.abs(Number(amount)), // Siempre positivo
         category,
         description,
         date: new Date(date).toISOString(),
-        type,
+        type, // "income" o "expense"
       });
 
       setTitle("");

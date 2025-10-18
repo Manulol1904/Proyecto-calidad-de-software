@@ -48,13 +48,20 @@ export default function ExpenseTable({ filter = "", type = "all" }) {
       <tbody>
         {filtered.map((exp) => {
           const isIncome = exp.type === "income";
+          const amount = Math.abs(Number(exp.amount)); // ✅ Siempre mostrar positivo
+          
           return (
             <tr key={exp.id}>
               <td>{exp.title}</td>
               <td>{exp.category}</td>
-              <td>{isIncome ? "Ingreso" : "Gasto"}</td>
+              <td style={{ 
+                color: isIncome ? "#4caf50" : "#e74c3c",
+                fontWeight: "600" 
+              }}>
+                {isIncome ? "💰 Ingreso" : "💸 Gasto"}
+              </td>
               <td className={isIncome ? "amount-income" : "amount-expense"}>
-                ${Math.abs(exp.amount).toFixed(2)}
+                ${amount.toFixed(2)}
               </td>
               <td>{new Date(exp.date).toLocaleDateString()}</td>
               <td>{exp.description || "-"}</td>
