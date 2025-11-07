@@ -8,6 +8,7 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [income, setIncome] = useState("");
+  const [incomeType, setIncomeType] = useState("monthly");
   const nav = useNavigate();
 
   const submit = async (e) => {
@@ -18,6 +19,7 @@ export default function Register() {
         email,
         password,
         income: parseFloat(income) || 0,
+        income_type: incomeType,
       });
       alert("Cuenta creada con éxito. Inicia sesión.");
       nav("/login");
@@ -64,11 +66,46 @@ export default function Register() {
             maxLength={72}
           />
 
-          <label>Ingresos mensuales (opcional)</label>
+          <label>Tipo de pago</label>
+          <select 
+            value={incomeType} 
+            onChange={(e) => setIncomeType(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "0.8rem",
+              marginBottom: "1rem",
+              border: "1px solid #cce7de",
+              borderRadius: "10px",
+              fontSize: "1rem",
+              outline: "none"
+            }}
+          >
+            <option value="monthly">💼 Mensual (un pago al mes)</option>
+            <option value="biweekly">📅 Quincenal (dos pagos al mes)</option>
+          </select>
+
+          <div style={{
+            background: "#f0f9ff",
+            padding: "10px",
+            borderRadius: "8px",
+            marginBottom: "1rem",
+            fontSize: "0.85rem",
+            color: "#0066cc",
+            border: "1px solid #b3d9ff"
+          }}>
+            <strong>💡 ¿Cómo funciona?</strong><br />
+            {incomeType === "monthly" ? (
+              <>• Tu ingreso completo estará disponible el día 1 de cada mes</>
+            ) : (
+              <>• Recibirás la mitad de tu ingreso el día 1 y la otra mitad el día 15</>
+            )}
+          </div>
+
+          <label>Ingresos {incomeType === "monthly" ? "mensuales" : "quincenales"} totales</label>
           <input
             value={income}
             onChange={(e) => setIncome(e.target.value)}
-            placeholder="Ej: 2500000"
+            placeholder={incomeType === "monthly" ? "Ej: 3000000" : "Ej: 3000000 (se dividirá en 2)"}
             type="number"
             min="0"
             step="1000"

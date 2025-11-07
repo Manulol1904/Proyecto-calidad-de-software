@@ -1,200 +1,314 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useExpenses } from "../context/ExpensesProvider";
+import LogoutButton from "../components/LogoutButton";
 import "../assets/styles/config.css";
 
-export default function Settings({ backendData, updateBackend }) {
-  const navigate = useNavigate();
+export default function Settings() {
+  const { user, updateUser, currentIncome } = useExpenses();
 
-  // 🔹 Estados para campos editables
-  const [balance, setBalance] = useState(backendData?.balance || 0); 
-  const [photo, setPhoto] = useState(backendData?.photo || null);
-  const [language, setLanguage] = useState(backendData?.language || "");
-  const [twoFactor, setTwoFactor] = useState(backendData?.twoFactor || false);
+  const [income, setIncome] = useState(0);
+  const [incomeType, setIncomeType] = useState("monthly");
+  const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
 
-  // Función para subir foto de perfil
-  const handlePhotoUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setPhoto(url);
-      updateBackend?.({ photo: url });
+  useEffect(() => {
+    if (user) {
+      setIncome(user.income || 0);
+      setIncomeType(user.income_type || "monthly");
+      setFullName(user.full_name || "");
+      setUsername(user.username || "");
+    }
+  }, [user]);
+
+  const handleUpdateIncome = async () => {
+    try {
+      await updateUser({
+        income: parseFloat(income),
+        income_type: incomeType,
+      });
+      alert("✅ Ingreso actualizado correctamente");
+    } catch (err) {
+      alert("❌ Error: " + (err.response?.data?.detail || err.message));
     }
   };
 
-  // Función para actualizar saldo
-  const handleBalanceChange = (e) => {
-    const newBalance = parseInt(e.target.value) || 0;
-    setBalance(newBalance);
-    updateBackend?.({ balance: newBalance });
+  const handleUpdateProfile = async () => {
+    try {
+      await updateUser({ full_name: fullName, username });
+      alert("✅ Perfil actualizado correctamente");
+    } catch (err) {
+      alert("❌ Error: " + (err.response?.data?.detail || err.message));
+    }
   };
 
-  // Función para actualizar idioma
-  const handleLanguageChange = (e) => {
-    setLanguage(e.target.value);
-    updateBackend?.({ language: e.target.value });
-  };
+  if (!user) {
+    return <div>Cargando...</div>;
+  }
 
-  // Función para toggle autenticación de dos factores
-  const handleTwoFactorToggle = () => {
-    setTwoFactor(!twoFactor);
-    updateBackend?.({ twoFactor: !twoFactor });
-  };
+  const nextResetDate = user.next_reset_date
+    ? new Date(user.next_reset_date).toLocaleDateString("es-CO", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : "No disponible";
 
-  // Función cerrar sesión
-  const handleLogout = () => {
-    updateBackend?.({ action: "logout" });
-    navigate("/login"); // Redirige a login
-  };
+  const daysUntilReset = user.next_reset_date
+    ? Math.ceil(
+        (new Date(user.next_reset_date) - new Date()) / (1000 * 60 * 60 * 24)
+      )
+    : 0;
 
   return (
     <div className="settings-page">
-      {/* 🔹 Navbar fijo */}
       <nav className="navbar">
         <h2 className="nav-title">Mi Panel</h2>
         <div className="nav-links">
           <Link to="/">🏠 Dashboard</Link>
           <Link to="/gastos">💰 Gastos</Link>
           <Link to="/config">⚙️ Configuración</Link>
-          <button className="logout-btn" onClick={handleLogout}>🚪 Cerrar sesión</button>
+          <LogoutButton />
         </div>
       </nav>
 
-      {/* 🔹 Contenido principal con padding-top para navbar */}
-      <div className="settings-container" style={{ paddingTop: "90px" }}>
+      <div className="settings-container">
         <h1>Configuración del Usuario</h1>
-        <p className="subtitle">Gestiona tu cuenta, tu perfil y tus preferencias.</p>
+        <p className="subtitle">Gestiona tu cuenta y preferencias</p>
 
         <div className="settings-grid">
           {/* 🧍 Perfil */}
-          <div className="settings-card profile">
-            <h2>Perfil</h2>
-            <div className="profile-photo">
-              <img src={photo || ""} alt="Foto de perfil" />
-              <label htmlFor="photo-upload" className="upload-btn">Cambiar foto</label>
-              <input
-                id="photo-upload"
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoUpload}
-              />
-            </div>
-            <div className="profile-info">
-              <p><strong>Nombre:</strong> {backendData?.name || ""}</p>
-              <p><strong>Correo:</strong> {backendData?.email || ""}</p>
-              <p><strong>Miembro desde:</strong> {backendData?.memberSince || ""}</p>
-              <div className="editable-fields">
-                <label>Idioma:</label>
-                <select value={language} onChange={handleLanguageChange}>
-                  <option value="">Seleccionar</option>
-                  <option value="es">Español</option>
-                  <option value="en">Inglés</option>
-                </select>
-                <label>Zona horaria:</label>
-                <select
-                  value={backendData?.timezone || ""}
-                  onChange={(e) => updateBackend?.({ timezone: e.target.value })}
-                >
-                  <option value="">Seleccionar</option>
-                  <option value="GMT-5">GMT-5 (Colombia)</option>
-                  <option value="GMT-3">GMT-3 (Argentina)</option>
-                  <option value="GMT+1">GMT+1 (España)</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* 🔐 Cambio de contraseña */}
           <div className="settings-card">
-            <h2>Seguridad y Contraseña</h2>
-            <form
-              className="password-form"
-              onSubmit={(e) => {
-                e.preventDefault();
-                updateBackend?.({
-                  currentPassword: e.target[0].value,
-                  newPassword: e.target[1].value,
-                });
-                e.target.reset();
-              }}
-            >
-              <input type="password" placeholder="Contraseña actual" />
-              <input type="password" placeholder="Nueva contraseña" />
-              <button type="submit">Actualizar</button>
-            </form>
+            <h2>👤 Perfil</h2>
+            <div className="profile-info">
+              <label>Nombre completo:</label>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Tu nombre"
+              />
 
-            <div className="two-factor">
-              <label className="toggle-switch">
-                <input
-                  type="checkbox"
-                  checked={twoFactor}
-                  onChange={handleTwoFactorToggle}
-                />
-                <span className="slider"></span>
-              </label>
-              <p>Autenticación de dos factores {twoFactor ? "activada ✅" : "desactivada ❌"}</p>
-            </div>
+              <label>Nombre de usuario:</label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="username"
+              />
 
-            <div className="login-history">
-              <h4>Historial de inicio de sesión:</h4>
-              <ul>
-                {(backendData?.loginHistory || []).map((entry, idx) => (
-                  <li key={idx}>{entry}</li>
-                ))}
-              </ul>
+              <label>Correo:</label>
+              <input
+                type="email"
+                value={user.email}
+                disabled
+                style={{ background: "#f0f0f0", cursor: "not-allowed" }}
+              />
+
+              <label>Miembro desde:</label>
+              <input
+                type="text"
+                value={new Date(user.created_at).toLocaleDateString()}
+                disabled
+                style={{ background: "#f0f0f0", cursor: "not-allowed" }}
+              />
+
+              <button
+                onClick={handleUpdateProfile}
+                style={{
+                  marginTop: "10px",
+                  background: "#52c49d",
+                  color: "white",
+                  border: "none",
+                  padding: "10px 20px",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                }}
+              >
+                💾 Guardar cambios
+              </button>
             </div>
           </div>
 
-          {/* 💰 Saldo disponible */}
+          {/* 💰 Ingreso mensual */}
           <div className="settings-card balance-card">
-            <h2>Saldo disponible</h2>
+            <h2>💰 Configuración de Ingresos</h2>
+
             <div className="balance-display">
               <div className="balance-item">
-                <p className="balance-label">COP:</p>
-                <p className="balance-value">{balance.toLocaleString('es-CO')} COP</p>
+                <p className="balance-label">Ingreso total configurado:</p>
+                <p className="balance-value">${income.toLocaleString("es-CO")}</p>
               </div>
               <div className="balance-item">
-                <p className="balance-label">USD:</p>
-                <p className="balance-value">{backendData?.usdBalance || 0} USD</p>
+                <p className="balance-label">Disponible ahora:</p>
+                <p className="balance-value" style={{ color: "#52c49d" }}>
+                  ${currentIncome.toLocaleString("es-CO")}
+                </p>
               </div>
             </div>
-          </div>
 
-          {/* 📄 Datos de cuenta */}
-          <div className="settings-card account-info">
-            <h2>Datos de la cuenta</h2>
-            <p><strong>Nombre:</strong> {backendData?.name || ""}</p>
-            <p><strong>Correo:</strong> {backendData?.email || ""}</p>
-            <p><strong>Plan:</strong> {backendData?.plan || ""}</p>
-            <p><strong>Estado:</strong> {backendData?.status || ""}</p>
-          </div>
+            <div
+              style={{
+                background: "#f0f9ff",
+                padding: "15px",
+                borderRadius: "8px",
+                marginTop: "15px",
+                border: "2px solid #0077cc",
+              }}
+            >
+              <p style={{ margin: "5px 0", fontSize: "0.9rem", color: "#333" }}>
+                <strong>📅 Próximo reset:</strong> {nextResetDate}
+              </p>
+              <p style={{ margin: "5px 0", fontSize: "0.9rem", color: "#666" }}>
+                ⏰ Faltan {daysUntilReset} días
+              </p>
+            </div>
 
-          {/* 💾 Gestión de datos y reportes */}
-          <div className="settings-card data-management">
-            <h2>Gestión de datos y reportes</h2>
-            <button className="export-btn" onClick={() => updateBackend?.({ export: "pdf" })}>
-              Exportar datos (PDF)
-            </button>
-            <button className="export-btn" onClick={() => updateBackend?.({ export: "excel" })}>
-              Exportar a Excel
-            </button>
-            <button className="export-btn" onClick={() => updateBackend?.({ export: "history" })}>
-              Descargar historial
-            </button>
+            <div style={{ marginTop: "20px" }}>
+              <label style={{ fontWeight: "600", color: "#333" }}>
+                Tipo de pago:
+              </label>
+              <select
+                value={incomeType}
+                onChange={(e) => setIncomeType(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  marginTop: "10px",
+                  borderRadius: "8px",
+                  border: "1px solid #ddd",
+                  fontSize: "1rem",
+                }}
+              >
+                <option value="monthly">
+                  💼 Mensual (todo el ingreso al inicio del mes)
+                </option>
+                <option value="biweekly">
+                  📅 Quincenal (mitad día 1, mitad día 15)
+                </option>
+              </select>
 
-            <div className="danger-zone">
-              <h4>Zona de riesgo ⚠️</h4>
-              <button className="delete-btn" onClick={() => updateBackend?.({ action: "deleteAccount" })}>
-                Borrar cuenta
-              </button>
-              <button className="reset-btn" onClick={() => updateBackend?.({ action: "resetSettings" })}>
-                Restablecer configuración
+              <div
+                style={{
+                  background: "#fff3cd",
+                  padding: "12px",
+                  borderRadius: "8px",
+                  marginTop: "15px",
+                  fontSize: "0.85rem",
+                  color: "#856404",
+                  border: "1px solid #ffeeba",
+                }}
+              >
+                <strong>💡 ¿Cómo funciona?</strong>
+                <br />
+                {incomeType === "monthly" ? (
+                  <>
+                    • <strong>Mensual:</strong> Tu ingreso completo estará
+                    disponible el día 1 de cada mes.
+                    <br />• El balance se resetea automáticamente cada mes.
+                  </>
+                ) : (
+                  <>
+                    • <strong>Quincenal:</strong> Recibes la mitad de tu ingreso
+                    el día 1 y la otra mitad el día 15.
+                    <br />• Primera quincena (1-14): Balance = 50% del ingreso
+                    <br />• Segunda quincena (15-fin): Balance = 100% del ingreso
+                  </>
+                )}
+              </div>
+
+              <label
+                style={{
+                  fontWeight: "600",
+                  color: "#333",
+                  display: "block",
+                  marginTop: "15px",
+                }}
+              >
+                Ingreso {incomeType === "monthly" ? "mensual" : "quincenal"} total:
+              </label>
+              <input
+                type="number"
+                value={income}
+                onChange={(e) => setIncome(e.target.value)}
+                min="0"
+                step="1000"
+                placeholder={
+                  incomeType === "monthly"
+                    ? "Ej: 3000000"
+                    : "Ej: 3000000 (se dividirá en 2)"
+                }
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  marginTop: "10px",
+                  borderRadius: "8px",
+                  border: "1px solid #ddd",
+                  fontSize: "1rem",
+                }}
+              />
+
+              <button
+                onClick={handleUpdateIncome}
+                style={{
+                  marginTop: "15px",
+                  background: "#52c49d",
+                  color: "white",
+                  border: "none",
+                  padding: "12px 20px",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  width: "100%",
+                  fontSize: "1rem",
+                  fontWeight: "600",
+                }}
+              >
+                💾 Actualizar configuración de ingresos
               </button>
             </div>
+          </div>
+
+          {/* 🔐 Seguridad */}
+          <div className="settings-card">
+            <h2>🔐 Seguridad</h2>
+            <p>Cambia tu contraseña o gestiona tu seguridad</p>
+            <button
+              style={{
+                marginTop: "10px",
+                background: "#3b82f6",
+                color: "white",
+                border: "none",
+                padding: "10px 20px",
+                borderRadius: "8px",
+                cursor: "pointer",
+              }}
+            >
+              🔑 Cambiar contraseña
+            </button>
+          </div>
+
+          {/* 📊 Información de cuenta */}
+          <div className="settings-card">
+            <h2>📊 Información de cuenta</h2>
+            <p>
+              <strong>ID:</strong> {user.id}
+            </p>
+            <p>
+              <strong>Estado:</strong>{" "}
+              {user.is_active ? "✅ Activo" : "❌ Inactivo"}
+            </p>
+            <p>
+              <strong>Fecha de registro:</strong>{" "}
+              {new Date(user.created_at).toLocaleString()}
+            </p>
+            <p>
+              <strong>Tipo de ingreso:</strong>{" "}
+              {user.income_type === "monthly" ? "💼 Mensual" : "📅 Quincenal"}
+            </p>
           </div>
         </div>
       </div>
 
-      {/* 🔹 Footer universal */}
       <footer className="app-footer">
         <p>Manuel Lozano & Cristobal Perez - Ingenieros de Sistemas</p>
       </footer>

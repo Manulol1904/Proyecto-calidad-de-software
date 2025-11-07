@@ -1,6 +1,5 @@
 from pydantic_settings import BaseSettings
-from typing import Optional
-import os
+from typing import List
 
 class Settings(BaseSettings):
     # Application settings
@@ -13,12 +12,12 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
     
-    # Database settings
-    mongodb_url: str = "mongodb://localhost:27017/"
+    # ✅ Database settings
+    mongodb_uri: str = "mongodb://localhost:27017/"
     database_name: str = "expense_tracker"
     
     # CORS settings
-    allowed_origins: list = [
+    allowed_origins: List[str] = [
         "http://localhost:3000",
         "http://localhost:5173",
         "http://127.0.0.1:3000",
@@ -35,10 +34,8 @@ class Settings(BaseSettings):
         "extra": "ignore"
     }
 
-# Create settings instance
 settings = Settings()
 
-# Environment-specific configurations
 def get_settings() -> Settings:
     """Get application settings"""
     return settings

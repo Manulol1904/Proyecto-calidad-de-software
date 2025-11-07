@@ -10,38 +10,69 @@ import ForgotPassword from "./components/Auth/ForgotPassword";
 import AdminDashboard from "./pages/AdminDashboard";
 
 function Protected({ children }) {
-  const { user } = useAuth();
-  return user ? children : <Navigate to="/login" replace />;
+  const { isAuthenticated, loading } = useAuth();
+  
+  // Mostrar loader mientras verifica autenticación
+  if (loading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '100vh',
+        fontSize: '1.5rem',
+        flexDirection: 'column',
+        gap: '20px'
+      }}>
+        <div style={{ fontSize: '3rem' }}>⏳</div>
+        <div>Cargando...</div>
+      </div>
+    );
+  }
+  
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
 }
-
-
 
 export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/" element={<Dashboard />} />
-      <Route path="/gastos" element={<ExpensesPage />} />
-      <Route path="/config" element={<Settings />} />
-     <Route path="/forgot-password" element={<ForgotPassword />} />
-    <Route path="/AdminDashboard" element={<AdminDashboard />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      
+      {/* Rutas protegidas */}
+      <Route 
+        path="/" 
+        element={
+          <Protected>
+            <Dashboard />
+          </Protected>
+        } 
+      />
+      <Route 
+        path="/gastos" 
+        element={
+          <Protected>
+            <ExpensesPage />
+          </Protected>
+        } 
+      />
+      <Route 
+        path="/config" 
+        element={
+          <Protected>
+            <Settings />
+          </Protected>
+        } 
+      />
+      <Route 
+        path="/AdminDashboard" 
+        element={
+          <Protected>
+            <AdminDashboard />
+          </Protected>
+        } 
+      />
     </Routes>
   );
 }
-
-
-
-/* 
-export default function App() {
-  return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/" element={<Protected><Dashboard />  </Protected>} /> 
-      <Route path="/gastos" element={<Protected><ExpensesPage /></Protected>} />
-      <Route path="/config" element={<Protected><Settings /></Protected>} />
-    </Routes>
-  );
-}
-  */

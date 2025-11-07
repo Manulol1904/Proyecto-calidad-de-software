@@ -8,14 +8,26 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login, loading, error } = useAuth();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoggingIn(true);
+    
     try {
+      // Hacer login y esperar respuesta
       await login(email, password);
-      navigate("/");
+      
+      // Pequeña espera para asegurar que el token se guarde
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      console.log("✅ Login exitoso, navegando al dashboard...");
+      
+      // Navegar al dashboard
+      navigate("/", { replace: true });
     } catch (err) {
-      console.error(err);
+      console.error("❌ Error en login:", err);
+      setIsLoggingIn(false);
     }
   };
 
@@ -32,6 +44,7 @@ export default function Login() {
             placeholder="Correo electrónico"
             type="email"
             required
+            disabled={isLoggingIn}
           />
           <input
             value={password}
@@ -39,6 +52,7 @@ export default function Login() {
             placeholder="Contraseña"
             type="password"
             required
+            disabled={isLoggingIn}
           />
 
           <div className="login-links">
@@ -47,14 +61,18 @@ export default function Login() {
             </Link>
           </div>
 
-          <button type="submit" disabled={loading} className="login-btn">
-            {loading ? "Cargando..." : "Entrar"}
+          <button 
+            type="submit" 
+            disabled={loading || isLoggingIn} 
+            className="login-btn"
+          >
+            {isLoggingIn ? "Iniciando sesión..." : "Entrar"}
           </button>
         </form>
 
         {error && (
           <div className="login-error">
-            {error.message || "Error al iniciar sesión"}
+            {error.message || error.detail || "Error al iniciar sesión"}
           </div>
         )}
 
@@ -63,6 +81,7 @@ export default function Login() {
           <button
             onClick={() => navigate("/register")}
             className="register-btn"
+            disabled={isLoggingIn}
           >
             Crear cuenta
           </button>
