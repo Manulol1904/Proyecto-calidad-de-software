@@ -78,7 +78,7 @@ export default function RecurringManager() {
           onClick={processRecurring}
           disabled={loading}
           style={{
-            background: "#52c49d",
+            background: "#080459",
             color: "white",
             border: "none",
             padding: "10px 18px",

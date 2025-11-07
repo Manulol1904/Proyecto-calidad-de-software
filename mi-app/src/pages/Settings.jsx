@@ -65,9 +65,9 @@ export default function Settings() {
       <nav className="navbar">
         <h2 className="nav-title">Mi Panel</h2>
         <div className="nav-links">
-          <Link to="/">🏠 Dashboard</Link>
-          <Link to="/gastos">💰 Gastos</Link>
-          <Link to="/config">⚙️ Configuración</Link>
+          <Link to="/"> Dashboard</Link>
+          <Link to="/gastos"> Gastos</Link>
+          <Link to="/config"> Configuración</Link>
           <LogoutButton />
         </div>
       </nav>
@@ -77,47 +77,55 @@ export default function Settings() {
         <p className="subtitle">Gestiona tu cuenta y preferencias</p>
 
         <div className="settings-grid">
-          {/* 🧍 Perfil */}
+          {/*  Perfil */}
           <div className="settings-card">
-            <h2>👤 Perfil</h2>
+            <h2> Perfil</h2>
             <div className="profile-info">
               <label>Nombre completo:</label>
+              <br/>
               <input
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Tu nombre"
               />
+              <br/>
 
               <label>Nombre de usuario:</label>
+              <br/>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="username"
               />
+              <br/>
 
               <label>Correo:</label>
+              <br/>
               <input
                 type="email"
                 value={user.email}
                 disabled
                 style={{ background: "#f0f0f0", cursor: "not-allowed" }}
               />
+              <br/>
 
               <label>Miembro desde:</label>
+              <br/>
               <input
                 type="text"
                 value={new Date(user.created_at).toLocaleDateString()}
                 disabled
                 style={{ background: "#f0f0f0", cursor: "not-allowed" }}
               />
+              <br/>
 
               <button
                 onClick={handleUpdateProfile}
                 style={{
                   marginTop: "10px",
-                  background: "#52c49d",
+                  background: "#080459",
                   color: "white",
                   border: "none",
                   padding: "10px 20px",
@@ -125,14 +133,15 @@ export default function Settings() {
                   cursor: "pointer",
                 }}
               >
-                💾 Guardar cambios
+                 Guardar cambios
               </button>
+              <br/>
             </div>
           </div>
 
-          {/* 💰 Ingreso mensual */}
+          {/*  Ingreso mensual */}
           <div className="settings-card balance-card">
-            <h2>💰 Configuración de Ingresos</h2>
+            <h2>Configuración de Ingresos</h2>
 
             <div className="balance-display">
               <div className="balance-item">
@@ -141,7 +150,7 @@ export default function Settings() {
               </div>
               <div className="balance-item">
                 <p className="balance-label">Disponible ahora:</p>
-                <p className="balance-value" style={{ color: "#52c49d" }}>
+                <p className="balance-value" style={{ color: "#080459" }}>
                   ${currentIncome.toLocaleString("es-CO")}
                 </p>
               </div>
@@ -157,10 +166,10 @@ export default function Settings() {
               }}
             >
               <p style={{ margin: "5px 0", fontSize: "0.9rem", color: "#333" }}>
-                <strong>📅 Próximo reset:</strong> {nextResetDate}
+                <strong> Próximo reset:</strong> {nextResetDate}
               </p>
               <p style={{ margin: "5px 0", fontSize: "0.9rem", color: "#666" }}>
-                ⏰ Faltan {daysUntilReset} días
+                 Faltan {daysUntilReset} días
               </p>
             </div>
 
@@ -181,10 +190,10 @@ export default function Settings() {
                 }}
               >
                 <option value="monthly">
-                  💼 Mensual (todo el ingreso al inicio del mes)
+                   Mensual (todo el ingreso al inicio del mes)
                 </option>
                 <option value="biweekly">
-                  📅 Quincenal (mitad día 1, mitad día 15)
+                   Quincenal (mitad día 1, mitad día 15)
                 </option>
               </select>
 
@@ -199,7 +208,7 @@ export default function Settings() {
                   border: "1px solid #ffeeba",
                 }}
               >
-                <strong>💡 ¿Cómo funciona?</strong>
+                <strong> ¿Cómo funciona?</strong>
                 <br />
                 {incomeType === "monthly" ? (
                   <>
@@ -252,7 +261,7 @@ export default function Settings() {
                 onClick={handleUpdateIncome}
                 style={{
                   marginTop: "15px",
-                  background: "#52c49d",
+                  background: "#080459",
                   color: "white",
                   border: "none",
                   padding: "12px 20px",
@@ -263,14 +272,14 @@ export default function Settings() {
                   fontWeight: "600",
                 }}
               >
-                💾 Actualizar configuración de ingresos
+                 Actualizar configuración de ingresos
               </button>
             </div>
           </div>
 
-          {/* 🔐 Seguridad */}
+          {/*  Seguridad */}
           <div className="settings-card">
-            <h2>🔐 Seguridad</h2>
+            <h2> Seguridad</h2>
             <p>Cambia tu contraseña o gestiona tu seguridad</p>
             <button
               style={{
@@ -283,19 +292,19 @@ export default function Settings() {
                 cursor: "pointer",
               }}
             >
-              🔑 Cambiar contraseña
+               Cambiar contraseña
             </button>
           </div>
 
-          {/* 📊 Información de cuenta */}
+          {/*  Información de cuenta */}
           <div className="settings-card">
-            <h2>📊 Información de cuenta</h2>
+            <h2> Información de cuenta</h2>
             <p>
               <strong>ID:</strong> {user.id}
             </p>
             <p>
               <strong>Estado:</strong>{" "}
-              {user.is_active ? "✅ Activo" : "❌ Inactivo"}
+              {user.is_active ? " Activo" : " Inactivo"}
             </p>
             <p>
               <strong>Fecha de registro:</strong>{" "}
@@ -303,7 +312,7 @@ export default function Settings() {
             </p>
             <p>
               <strong>Tipo de ingreso:</strong>{" "}
-              {user.income_type === "monthly" ? "💼 Mensual" : "📅 Quincenal"}
+              {user.income_type === "monthly" ? " Mensual" : " Quincenal"}
             </p>
           </div>
         </div>

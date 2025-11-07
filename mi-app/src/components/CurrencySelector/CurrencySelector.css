@@ -39,11 +39,11 @@
   }
   
   .currency-select:hover:not(:disabled) {
-    border-color: #52c49d;
+    border-color: #080459;
   }
   
   .currency-select:focus {
-    border-color: #52c49d;
+    border-color: #080459;
     box-shadow: 0 0 0 3px rgba(82, 196, 157, 0.1);
   }
   
@@ -53,7 +53,7 @@
   }
   
   .refresh-btn {
-    background: #52c49d;
+    background: #080459;
     border: none;
     color: white;
     padding: 6px 10px;

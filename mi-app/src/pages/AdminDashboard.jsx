@@ -27,7 +27,6 @@ export default function AdminDashboard() {
   const [modalData, setModalData] = useState(null);
   const [modalType, setModalType] = useState("");
 
-  // --- Fetch inicial ---
   useEffect(() => {
     async function fetchData() {
       try {
@@ -56,13 +55,11 @@ export default function AdminDashboard() {
     fetchData();
   }, []);
 
-  // --- Función Cerrar Sesión ---
   const handleLogout = () => {
-    localStorage.removeItem("token"); // ejemplo
+    localStorage.removeItem("token");
     navigate("/login");
   };
 
-  // --- CRUD usuarios ---
   const saveUser = (user) => {
     if (user.id) {
       setUsers(users.map((u) => (u.id === user.id ? user : u)));
@@ -88,7 +85,6 @@ export default function AdminDashboard() {
     fetch(`/api/users/${id}`, { method: "DELETE" });
   };
 
-  // --- CRUD transacciones ---
   const saveTransaction = (t) => {
     if (t.id) {
       setTransactions(transactions.map((tr) => (tr.id === t.id ? t : tr)));
@@ -114,7 +110,6 @@ export default function AdminDashboard() {
     fetch(`/api/transactions/${id}`, { method: "DELETE" });
   };
 
-  // --- Modal ---
   const openModal = (type, data = null) => {
     setModalType(type);
     if (type === "user") {
@@ -136,7 +131,6 @@ export default function AdminDashboard() {
     setModalType("");
   };
 
-  // --- Cálculos y gráficas ---
   const totalIncome = transactions.filter((t) => t.type === "Ingreso").reduce((sum, t) => sum + t.amount, 0);
   const totalExpense = transactions.filter((t) => t.type === "Gasto").reduce((sum, t) => sum + t.amount, 0);
 
@@ -157,13 +151,12 @@ export default function AdminDashboard() {
     datasets: [
       {
         data: [users.filter((u) => u.active).length, users.filter((u) => !u.active).length],
-        backgroundColor: ["#52c49d", "#f87171"],
+        backgroundColor: ["#080459", "#f87171"],
         hoverOffset: 6,
       },
     ],
   };
 
-  // --- Generar PDF ---
   const generatePDF = () => {
     const doc = new jsPDF();
     doc.setFontSize(16);
@@ -196,11 +189,11 @@ export default function AdminDashboard() {
       <nav className="navbar">
         <h2 className="nav-title">Panel de Administración</h2>
         <div className="nav-links">
-          <Link to="/">🏠 Dashboard</Link>
-          <Link to="/gastos">💰 Gastos</Link>
-          <Link to="/config">⚙️ Configuración</Link>
-          <Link to="/admin">🧑‍💼 Admin</Link>
-          <button className="logout-btn" onClick={handleLogout}>🚪 Cerrar sesión</button>
+          <Link to="/">Dashboard</Link>
+          <Link to="/gastos">Gastos</Link>
+          <Link to="/config">Configuración</Link>
+          <Link to="/admin">Admin</Link>
+          <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
         </div>
       </nav>
 
@@ -209,22 +202,21 @@ export default function AdminDashboard() {
         <p className="subtitle">Supervisa la actividad de usuarios, cuentas y movimientos financieros.</p>
 
         <div className="admin-summary">
-          <div className="summary-card"><h3>👥 Usuarios Registrados</h3><p>{users.length}</p></div>
-          <div className="summary-card"><h3>💼 Total de Cuentas</h3><p>{users.reduce((sum, u) => sum + u.accounts, 0)}</p></div>
-          <div className="summary-card"><h3>💸 Total Movimientos</h3><p>{transactions.length}</p></div>
-          <div className="summary-card"><h3>💰 Ingresos Globales</h3><p>${totalIncome.toFixed(2)}</p></div>
-          <div className="summary-card"><h3>📉 Gastos Globales</h3><p>${totalExpense.toFixed(2)}</p></div>
+          <div className="summary-card"><h3>Usuarios Registrados</h3><p>{users.length}</p></div>
+          <div className="summary-card"><h3>Total de Cuentas</h3><p>{users.reduce((sum, u) => sum + u.accounts, 0)}</p></div>
+          <div className="summary-card"><h3>Total Movimientos</h3><p>{transactions.length}</p></div>
+          <div className="summary-card"><h3>Ingresos Globales</h3><p>${totalIncome.toFixed(2)}</p></div>
+          <div className="summary-card"><h3>Gastos Globales</h3><p>${totalExpense.toFixed(2)}</p></div>
         </div>
 
         <div className="charts-container">
-          <div className="chart-card"><h3>📊 Ingresos vs Gastos (Global)</h3><Bar data={dataBar} /></div>
-          <div className="chart-card"><h3>👥 Usuarios activos vs inactivos</h3><Doughnut data={dataDoughnut} /></div>
+          <div className="chart-card"><h3>Ingresos vs Gastos</h3><Bar data={dataBar} /></div>
+          <div className="chart-card"><h3>Usuarios activos vs inactivos</h3><Doughnut data={dataDoughnut} /></div>
         </div>
 
-        {/* TABLA USUARIOS */}
         <div className="admin-section">
           <h2>Gestión de Usuarios</h2>
-          <button onClick={() => openModal("user")}>➕ Nuevo Usuario</button>
+          <button onClick={() => openModal("user")}>Nuevo Usuario</button>
           <table className="admin-table">
             <thead><tr><th>ID</th><th>Nombre</th><th>Correo</th><th>Cuentas</th><th>Estado</th><th>Acciones</th></tr></thead>
             <tbody>
@@ -236,8 +228,8 @@ export default function AdminDashboard() {
                   <td>{u.accounts}</td>
                   <td className={u.active ? "active" : "inactive"}>{u.active ? "Activo" : "Inactivo"}</td>
                   <td>
-                    <button onClick={() => openModal("user", u)}>✏️ Editar</button>
-                    <button onClick={() => deleteUser(u.id)}>🗑️ Eliminar</button>
+                    <button onClick={() => openModal("user", u)}>Editar</button>
+                    <button onClick={() => deleteUser(u.id)}>Eliminar</button>
                   </td>
                 </tr>
               ))}
@@ -245,10 +237,9 @@ export default function AdminDashboard() {
           </table>
         </div>
 
-        {/* TABLA TRANSACCIONES */}
         <div className="admin-section">
           <h2>Movimientos Financieros</h2>
-          <button onClick={() => openModal("transaction")}>➕ Nueva Transacción</button>
+          <button onClick={() => openModal("transaction")}>Nueva Transacción</button>
           <table className="admin-table">
             <thead><tr><th>ID</th><th>Usuario</th><th>Tipo</th><th>Monto</th><th>Fecha</th><th>Acciones</th></tr></thead>
             <tbody>
@@ -260,8 +251,8 @@ export default function AdminDashboard() {
                   <td>${t.amount.toFixed(2)}</td>
                   <td>{t.date}</td>
                   <td>
-                    <button onClick={() => openModal("transaction", t)}>✏️ Editar</button>
-                    <button onClick={() => deleteTransaction(t.id)}>🗑️ Eliminar</button>
+                    <button onClick={() => openModal("transaction", t)}>Editar</button>
+                    <button onClick={() => deleteTransaction(t.id)}>Eliminar</button>
                   </td>
                 </tr>
               ))}
@@ -269,18 +260,17 @@ export default function AdminDashboard() {
           </table>
         </div>
 
-        {/* AUDITORÍA */}
         <div className="admin-section audit-section">
           <h2>Auditoría y Seguridad</h2>
           <ul>
-            {auditData.lastLogin && <li>✅ Último inicio de sesión: {auditData.lastLogin}</li>}
-            {auditData.failedAttempts && <li>⚠️ {auditData.failedAttempts} intentos de acceso fallidos</li>}
-            {auditData.backupActive && <li>🔐 Backup automático activo</li>}
+            {auditData.lastLogin && <li>Último inicio de sesión: {auditData.lastLogin}</li>}
+            {auditData.failedAttempts && <li>{auditData.failedAttempts} intentos de acceso fallidos</li>}
+            {auditData.backupActive && <li>Backup automático activo</li>}
           </ul>
         </div>
 
         <div className="pdf-section">
-          <button onClick={generatePDF} className="btn-pdf">📄 Generar Reporte PDF</button>
+          <button onClick={generatePDF} className="btn-pdf">Generar Reporte PDF</button>
         </div>
       </div>
 
@@ -288,7 +278,6 @@ export default function AdminDashboard() {
         <p>Manuel Lozano & Cristobal Perez - Ingenieros de Sistemas</p>
       </footer>
 
-      {/* MODAL */}
       {modalData && (
         <div className="modal-overlay">
           <div className="modal">

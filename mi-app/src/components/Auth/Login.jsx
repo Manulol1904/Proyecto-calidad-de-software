@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthProvider";
+import { useToast } from "../Toast/Toast";
 import "../../assets/styles/login.css";
 
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login, loading, error } = useAuth();
+  const { login, loading } = useAuth();
+  const { addToast } = useToast();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -15,18 +17,17 @@ export default function Login() {
     setIsLoggingIn(true);
     
     try {
-      // Hacer login y esperar respuesta
       await login(email, password);
-      
-      // Pequeña espera para asegurar que el token se guarde
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      console.log("✅ Login exitoso, navegando al dashboard...");
+      addToast("Inicio de sesión exitoso. Bienvenido!", "success");
+      console.log("Login exitoso, navegando al dashboard...");
       
-      // Navegar al dashboard
       navigate("/", { replace: true });
     } catch (err) {
-      console.error("❌ Error en login:", err);
+      console.error("Error en login:", err);
+      const errorMsg = err.response?.data?.detail || err.message || "Error al iniciar sesión. Verifica tus credenciales.";
+      addToast(errorMsg, "error");
       setIsLoggingIn(false);
     }
   };
@@ -34,7 +35,7 @@ export default function Login() {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h1 className="login-title">Bienvenido de nuevo 👋</h1>
+        <h1 className="login-title">Bienvenido de nuevo</h1>
         <p className="login-subtitle">Inicia sesión para acceder a tu panel personal</p>
 
         <form className="login-form" onSubmit={handleSubmit}>
@@ -69,12 +70,6 @@ export default function Login() {
             {isLoggingIn ? "Iniciando sesión..." : "Entrar"}
           </button>
         </form>
-
-        {error && (
-          <div className="login-error">
-            {error.message || error.detail || "Error al iniciar sesión"}
-          </div>
-        )}
 
         <div className="register-section">
           <p>¿No tienes cuenta?</p>

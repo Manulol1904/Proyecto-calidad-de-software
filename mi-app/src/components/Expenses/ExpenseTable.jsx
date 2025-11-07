@@ -104,7 +104,7 @@ export default function ExpenseTable({ filter = "", type = "all", customList }) 
                   fontWeight: "600",
                 }}
               >
-                {isIncome ? "💰 Ingreso" : "💸 Gasto"}
+                {isIncome ? " Ingreso" : " Gasto"}
               </td>
               <td className={isIncome ? "amount-income" : "amount-expense"}>
                 ${amount.toFixed(2)}
@@ -157,7 +157,7 @@ export default function ExpenseTable({ filter = "", type = "all", customList }) 
                     fontSize: "0.9rem",
                   }}
                 >
-                  {isRecurring ? "🗑️ Eliminar recurrente" : "🗑️ Eliminar"}
+                  {isRecurring ? "Eliminar recurrente" : "Eliminar"}
                 </button>
               </td>
             </tr>

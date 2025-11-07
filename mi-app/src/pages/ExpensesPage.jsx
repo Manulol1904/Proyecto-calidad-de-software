@@ -41,9 +41,9 @@ export default function ExpensesPage() {
       <nav className="navbar">
         <h2 className="nav-title">Mi Panel</h2>
         <div className="nav-links">
-          <Link to="/">🏠 Dashboard</Link>
-          <Link to="/gastos">💰 Gastos</Link>
-          <Link to="/config">⚙️ Configuración</Link>
+          <Link to="/"> Dashboard</Link>
+          <Link to="/gastos"> Gastos</Link>
+          <Link to="/config"> Configuración</Link>
           <LogoutButton />
         </div>
       </nav>
@@ -67,7 +67,7 @@ export default function ExpensesPage() {
           <button
             onClick={() => setShowRecurring(!showRecurring)}
             style={{
-              background: showRecurring ? "#0077cc" : "#52c49d",
+              background: showRecurring ? "#0077cc" : "#080459",
               color: "white",
               border: "none",
               padding: "10px 18px",
@@ -76,7 +76,7 @@ export default function ExpensesPage() {
               fontWeight: "500",
             }}
           >
-            {showRecurring ? "📋 Ver Todos" : "🔁 Ver Recurrentes"}
+            {showRecurring ? " Ver Todos" : " Ver Recurrentes"}
           </button>
 
           <button onClick={generatePDF} className="btn-pdf">
@@ -89,8 +89,8 @@ export default function ExpensesPage() {
         <div className="table-container">
           <h3>
             {showRecurring
-              ? "🔁 Gastos Recurrentes"
-              : "📊 Historial de Ingresos y Gastos"}
+              ? "Gastos Recurrentes"
+              : " Historial de Ingresos y Gastos"}
           </h3>
           <ExpenseTable filter={filter} type={type} customList={filteredList} />
         </div>

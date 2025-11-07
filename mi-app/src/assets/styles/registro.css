@@ -1,82 +1,95 @@
 /* ===== registro.css ===== */
-/* Mismo esquema de colores que Dashboard */
+/* Paleta azul oscuro con blanco */
 :root {
-  --primary-color: #52c49d;
-  --background: #f7f9fb;
-  --card-bg: #ffffff;
-  --text-dark: #2d2d2d;
-  --text-light: #555;
-  --border: #e0e0e0;
+  --color-primary: #030f33; /* Azul oscuro */
+  --color-primary-light: #030f33; /* Azul brillante */
+  --color-bg: #f8fafc; /* Fondo blanco suave */
+  --color-card-bg: #ffffff; /* Fondo tarjetas */
+  --color-text-dark: #0f172a; /* Texto oscuro */
+  --color-text-light: #64748b; /* Texto gris claro */
+  --color-border: #cbd5e1; /* Borde gris claro */
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.15);
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
 }
 
 .register-container {
-  height: 100vh;
-  background-color: var(--background);
+  
+  background: linear-gradient(135deg, #030f33 0%, #2563eb 100%);
   display: flex;
   justify-content: center;
   align-items: center;
   font-family: "Poppins", sans-serif;
+  padding: 20px;
 }
 
+/* Tarjeta principal */
 .register-card {
-  background-color: var(--card-bg);
+  background-color: var(--color-card-bg);
   padding: 3rem 3.5rem;
   border-radius: 1rem;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-lg);
   width: 450px;
   text-align: center;
-  transition: transform 0.3s ease;
+  transition: transform var(--transition-normal);
 }
 
 .register-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-5px);
 }
 
+/* Título */
 .register-card h2 {
-  color: var(--primary-color);
+  color: var(--color-primary);
   margin-bottom: 0.5rem;
   font-size: 2rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
+/* Subtítulo */
 .register-subtitle {
   font-size: 0.95rem;
-  color: var(--text-light);
+  color: var(--color-text-light);
   margin-bottom: 2rem;
 }
 
+/* Formulario */
 .register-form {
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
 }
 
+/* Etiquetas */
 .register-form label {
   text-align: left;
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--text-dark);
+  color: var(--color-text-dark);
 }
 
+/* Inputs */
 .register-form input {
   padding: 0.8rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 0.5rem;
   font-size: 1rem;
-  transition: all 0.3s ease;
-  color: var(--text-dark);
-  background-color: #fafafa;
+  transition: all var(--transition-fast);
+  color: var(--color-text-dark);
+  background-color: #f9fafb;
 }
 
 .register-form input:focus {
   outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(82, 196, 157, 0.15);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
   background-color: #fff;
 }
 
+/* Botón principal */
 .register-form button {
-  background-color: var(--primary-color);
+  background-color: var(--color-primary);
   color: white;
   font-weight: 600;
   border: none;
@@ -84,25 +97,65 @@
   border-radius: 0.5rem;
   cursor: pointer;
   font-size: 1rem;
-  transition: background-color 0.3s ease;
+  transition: all var(--transition-normal);
   margin-top: 1rem;
 }
 
 .register-form button:hover {
-  background-color: #44a986;
+  background-color: var(--color-primary-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
+/* Enlace para volver al login */
 .redirect-login {
   margin-top: 1.5rem;
   background: none;
   border: none;
-  color: var(--primary-color);
+  color: var(--color-primary);
   font-size: 0.95rem;
   cursor: pointer;
   text-decoration: underline;
-  transition: color 0.2s ease;
+  transition: color var(--transition-fast);
 }
 
 .redirect-login:hover {
-  color: #44a986;
+  color: var(--color-primary-light);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .register-card {
+    width: 100%;
+    max-width: 360px;
+    padding: 2.5rem 2rem;
+  }
+
+  .register-card h2 {
+    font-size: 1.75rem;
+  }
+
+  .register-subtitle {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .register-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .register-card h2 {
+    font-size: 1.5rem;
+  }
+
+  .register-form input {
+    padding: 0.7rem;
+    font-size: 0.95rem;
+  }
+
+  .register-form button {
+    padding: 0.8rem;
+    font-size: 0.9rem;
+  }
 }

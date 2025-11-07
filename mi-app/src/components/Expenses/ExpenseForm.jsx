@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useExpenses } from "../../context/ExpensesProvider";
+import { useToast } from "../Toast/Toast";
 
 export default function ExpenseForm() {
   const [title, setTitle] = useState("");
@@ -9,7 +10,6 @@ export default function ExpenseForm() {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [type, setType] = useState("expense");
   
-  // 🔁 Nuevos estados para recurrencia
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurrenceDay, setRecurrenceDay] = useState(1);
   
@@ -17,13 +17,13 @@ export default function ExpenseForm() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   
   const { addExpense, list } = useExpenses();
+  const { addToast } = useToast();
 
   useEffect(() => {
     const uniqueCategories = [...new Set(list.map(e => e.category).filter(Boolean))];
     setSuggestions(uniqueCategories);
   }, [list]);
 
-  // 🔁 Actualizar día de recurrencia cuando cambia la fecha
   useEffect(() => {
     if (isRecurring && date) {
       const day = new Date(date).getDate();
@@ -61,7 +61,7 @@ export default function ExpenseForm() {
         recurrence_day: isRecurring ? recurrenceDay : null,
       };
 
-      console.log("📤 Enviando gasto:", expenseData);
+      console.log("Enviando gasto:", expenseData);
       
       await addExpense(expenseData);
 
@@ -75,16 +75,18 @@ export default function ExpenseForm() {
       setIsRecurring(false);
       setRecurrenceDay(1);
 
-      alert(`✅ ${type === "income" ? "Ingreso" : "Gasto"} ${isRecurring ? "recurrente" : ""} agregado`);
+      // Mostrar notificación de éxito
+      const message = `${type === "income" ? "Ingreso" : "Gasto"} ${isRecurring ? "recurrente" : ""} agregado correctamente`;
+      addToast(message, "success");
     } catch (err) {
       console.error(err);
-      alert("❌ Error al agregar registro");
+      addToast("Error al agregar el registro. Por favor intenta nuevamente.", "error");
     }
   };
 
   return (
     <div className="form-container">
-      <h3>➕ Nuevo Registro</h3>
+      <h3>Nuevo Registro</h3>
       <form className="main-form" onSubmit={submit}>
         <input
           value={title}
@@ -171,7 +173,6 @@ export default function ExpenseForm() {
           required
         />
         
-        {/* 🔁 Sección de recurrencia */}
         <div style={{
           gridColumn: "1 / -1",
           display: "flex",
@@ -195,7 +196,7 @@ export default function ExpenseForm() {
               onChange={(e) => setIsRecurring(e.target.checked)}
               style={{ width: "18px", height: "18px", cursor: "pointer" }}
             />
-            <span>🔁 Es un gasto recurrente (mensual)</span>
+            <span>Es un gasto recurrente (mensual)</span>
           </label>
           
           {isRecurring && (
@@ -223,8 +224,8 @@ export default function ExpenseForm() {
           )}
         </div>
         
-        <button type="submit" style={{ gridColumn: "1 / -1" }}>
-          {isRecurring ? "🔁" : "➕"} Agregar {type === "income" ? "Ingreso" : "Gasto"}
+        <button type="submit" className="btn btn-primary" style={{ gridColumn: "1 / -1" }}>
+          Agregar {type === "income" ? "Ingreso" : "Gasto"}
           {isRecurring && " Recurrente"}
         </button>
       </form>

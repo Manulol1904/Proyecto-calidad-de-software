@@ -13,7 +13,7 @@
 
 /* 🔹 Navbar */
 .navbar {
-  background-color: #52c49d;
+  background-color: #080459;
   color: white;
   padding: 15px 25px;
   display: flex;
@@ -265,7 +265,7 @@
 }
 
 .btn-pdf {
-  background-color: #52c49d;
+  background-color: #080459;
   color: white;
   border: none;
   padding: 12px 22px;
@@ -357,7 +357,7 @@
 }
 
 .modal-buttons button[type="submit"] {
-  background: #52c49d;
+  background: #080459;
   color: white;
 }
 
@@ -381,7 +381,7 @@
 .app-footer {
   width: 100%;
   padding: 12px 0;
-  background-color: #52c49d; /* mismo color del navbar */
+  background-color: #080459; /* mismo color del navbar */
   color: white;
   text-align: center;
   font-weight: bold;

@@ -1,40 +1,51 @@
 /* ==============================
-   💰 ESTILOS DE LA PÁGINA DE GASTOS
+   💰 ESTILOS DE LA PÁGINA DE GASTOS (AZUL OSCURO Y BLANCO)
    ============================== */
+:root {
+  --primary-color: #0a1a3c;      /* Azul oscuro principal */
+  --secondary-color: #1e3a8a;    /* Azul brillante */
+  --accent-color: #ffffff;       /* Blanco */
+  --hover-color: #ffffff;        /* Blanco al pasar el cursor */
+  --text-color: #0a0a0a;
+  --text-light: #4b5563;
+  --border: #d1d5db;
+  --shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
 .expenses-page {
   font-family: "Poppins", sans-serif;
-  background-color: #f4f6f9;
+  background-color: #f4f6fa;
   min-height: 100vh;
-  padding: 30px;
-  color: #333;
+  display: flex;
+  flex-direction: column;
+  color: var(--text-color);
 }
 
 /* ==============================
    🔹 Navbar fijo en la parte superior
    ============================== */
 .navbar {
-  position: fixed;       /* Fijo en la parte superior */
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 1000;        /* Siempre arriba de otros elementos */
+  z-index: 1000;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #0077cc;
-  color: #fff;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: var(--accent-color);
   padding: 15px 30px;
-  border-radius: 0;     /* Quitar bordes redondeados */
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 0;
+  box-shadow: var(--shadow);
 }
 
-/* Título del navbar */
 .nav-title {
   font-size: 1.6rem;
   font-weight: 600;
+  color: var(--accent-color);
 }
 
-/* Links y botón cerrar sesión */
 .nav-links {
   display: flex;
   align-items: center;
@@ -43,7 +54,7 @@
 
 .nav-links a,
 .nav-links button.logout-btn {
-  color: #fff;
+  color: var(--accent-color);
   margin-left: 15px;
   text-decoration: none;
   font-weight: 500;
@@ -55,38 +66,31 @@
 
 .nav-links a:hover,
 .nav-links button.logout-btn:hover {
-  text-decoration: underline;
-  color: #ffeb3b;
-}
-
-.nav-links button.logout-btn {
-  padding: 6px 12px;
+  background-color: var(--accent-color);
+  color: var(--secondary-color);
   border-radius: 6px;
-}
-
-.nav-links button.logout-btn:hover {
-  background-color: #005fa3;
-  color: white;
+  padding: 6px 12px;
 }
 
 /* ==============================
    🔹 Ajuste del contenido debajo del navbar
    ============================== */
 .expenses-content {
-  padding-top: 90px;  /* Altura del navbar + margen */
+  flex: 1;
+  padding: 100px 30px 80px; /* Deja espacio para navbar y footer */
 }
 
 /* ==============================
    ⚠️ ALERTAS
    ============================== */
 .alert-box {
-  background-color: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeeba;
+  background-color: #e0e7ff;
+  color: var(--secondary-color);
+  border: 1px solid #c7d2fe;
   border-radius: 10px;
   padding: 15px 20px;
   margin-bottom: 25px;
-  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.1);
+  box-shadow: var(--shadow);
 }
 
 .alert-box p {
@@ -108,23 +112,23 @@
 .filter-bar input,
 .filter-bar select {
   padding: 10px 14px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border);
   border-radius: 10px;
   background: #fff;
   font-size: 0.95rem;
-  transition: 0.2s;
+  transition: 0.3s;
 }
 
 .filter-bar input:focus,
 .filter-bar select:focus {
-  border-color: #0077cc;
+  border-color: var(--secondary-color);
   outline: none;
-  box-shadow: 0 0 4px rgba(0, 119, 204, 0.3);
+  box-shadow: 0 0 4px rgba(30, 58, 138, 0.3);
 }
 
 .btn-pdf {
-  background: #0077cc;
-  color: #fff;
+  background: var(--secondary-color);
+  color: var(--accent-color);
   border: none;
   padding: 10px 18px;
   border-radius: 10px;
@@ -134,7 +138,9 @@
 }
 
 .btn-pdf:hover {
-  background: #005fa3;
+  background: var(--accent-color);
+  color: var(--secondary-color);
+  border: 2px solid var(--secondary-color);
   transform: translateY(-2px);
 }
 
@@ -146,12 +152,12 @@
   border-radius: 18px;
   padding: 25px 30px;
   margin-bottom: 35px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-  border-left: 6px solid #0077cc;
+  box-shadow: var(--shadow);
+  border-left: 6px solid var(--secondary-color);
 }
 
 .month-compare h3 {
-  color: #0077cc;
+  color: var(--secondary-color);
   font-size: 1.3rem;
   margin-bottom: 10px;
 }
@@ -162,12 +168,12 @@
 }
 
 .text-danger {
-  color: #dd2222;
+  color: #dc2626;
   font-weight: 600;
 }
 
 .text-success {
-  color: #22bb33;
+  color: #16a34a;
   font-weight: 600;
 }
 
@@ -184,11 +190,11 @@
   border-radius: 18px;
   padding: 25px 30px;
   margin-bottom: 35px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow);
 }
 
 .form-container h3 {
-  color: #0077cc;
+  color: var(--secondary-color);
   font-size: 1.2rem;
   margin-bottom: 15px;
 }
@@ -207,9 +213,9 @@
 .auto-form select {
   flex: 1 1 180px;
   padding: 10px 14px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border);
   border-radius: 10px;
-  background: #fdfdfd;
+  background: #f9fafb;
   transition: 0.2s;
 }
 
@@ -217,16 +223,15 @@
 .auto-form input:focus,
 .main-form select:focus,
 .auto-form select:focus {
-  border-color: #0077cc;
+  border-color: var(--secondary-color);
   outline: none;
-  box-shadow: 0 0 4px rgba(0, 119, 204, 0.3);
+  box-shadow: 0 0 4px rgba(30, 58, 138, 0.3);
 }
 
-/* Botones */
 .btn-ingreso,
 .btn-auto {
-  background: #0077cc;
-  color: white;
+  background: var(--secondary-color);
+  color: #fff;
   border: none;
   padding: 10px 18px;
   border-radius: 10px;
@@ -237,7 +242,9 @@
 
 .btn-ingreso:hover,
 .btn-auto:hover {
-  background: #005fa3;
+  background: var(--accent-color);
+  color: var(--secondary-color);
+  border: 2px solid var(--secondary-color);
   transform: translateY(-2px);
 }
 
@@ -248,12 +255,12 @@
   background: #fff;
   border-radius: 18px;
   padding: 25px 30px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow);
   margin-bottom: 40px;
 }
 
 .table-container h3 {
-  color: #0077cc;
+  color: var(--secondary-color);
   font-size: 1.2rem;
   margin-bottom: 15px;
 }
@@ -272,7 +279,7 @@
 }
 
 .expense-table th {
-  background-color: #0077cc;
+  background-color: var(--secondary-color);
   color: white;
   font-weight: 500;
 }
@@ -282,7 +289,7 @@
 }
 
 .expense-table tr:hover {
-  background-color: #eef6ff;
+  background-color: #eef2ff;
 }
 
 /* ==============================
@@ -293,13 +300,38 @@
   border-radius: 18px;
   padding: 25px 30px;
   margin-top: 20px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow);
 }
 
 .chart-container h3 {
-  color: #0077cc;
+  color: var(--secondary-color);
   font-size: 1.2rem;
   margin-bottom: 15px;
+}
+
+/* ==============================
+   🔹 FOOTER
+   ============================== */
+.footer {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: var(--accent-color);
+  text-align: center;
+  padding: 20px 0;
+  font-size: 0.95rem;
+  margin-top: auto;
+  box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.1);
+}
+
+.footer a {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.footer a:hover {
+  color: var(--hover-color);
+  text-decoration: underline;
 }
 
 /* ==============================
@@ -345,6 +377,6 @@
   }
 
   .expenses-content {
-    padding-top: 120px; /* Ajuste extra para navbar en móviles */
+    padding-top: 120px;
   }
 }
