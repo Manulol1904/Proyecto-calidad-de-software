@@ -31,8 +31,13 @@ class User(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
-    # 👇 Agrega este campo
+    # 💰 Campos de ingreso
     income: float = Field(default=0.0, ge=0)
+    income_type: str = Field(default="monthly", pattern="^(monthly|biweekly)$")  # mensual o quincenal
+    
+    # 📅 Control de reset de balance
+    last_reset_date: Optional[datetime] = None  # Última vez que se reseteó el balance
+    next_reset_date: Optional[datetime] = None  # Próxima fecha de reset
 
     model_config = {
         "populate_by_name": True,
@@ -44,7 +49,8 @@ class User(BaseModel):
                 "email": "john@example.com",
                 "full_name": "John Doe",
                 "is_active": True,
-                "income": 2500000
+                "income": 3000000,
+                "income_type": "biweekly"
             }
         }
     }

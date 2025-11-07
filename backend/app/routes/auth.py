@@ -1,11 +1,13 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from datetime import timedelta
-from app.schemas.user import UserCreate, UserResponse, Token, UserLogin
+from app.schemas.user import UserCreate, UserResponse, Token, UserLogin, UserUpdate
 from app.models.user import User
 from app.services.auth_service import AuthService
+from app.services.balance_service import BalanceService
 from app.utils.security import create_access_token
 from app.utils.dependencies import get_current_active_user
 from app.config.settings import get_settings
+from app.database.mongodb import get_collection
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 
@@ -24,7 +26,10 @@ async def register(user_data: UserCreate):
             full_name=user.full_name,
             is_active=user.is_active,
             created_at=user.created_at,
-            income=user.income or 0.0  # 👈 agregado
+            income=user.income or 0.0,
+            income_type=user.income_type or "monthly",
+            last_reset_date=user.last_reset_date,
+            next_reset_date=user.next_reset_date
         )
     except ValueError as e:
         raise HTTPException(
@@ -33,7 +38,7 @@ async def register(user_data: UserCreate):
         )
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login")
 async def login(login_data: UserLogin):
     """Login user and return access token"""
     auth_service = AuthService()
@@ -52,7 +57,6 @@ async def login(login_data: UserLogin):
         data={"sub": user.email}, expires_delta=access_token_expires
     )
     
-    # 👇 devolvemos también los datos del usuario (con income incluido)
     return {
         "access_token": access_token,
         "token_type": "bearer",
@@ -62,8 +66,11 @@ async def login(login_data: UserLogin):
             "email": user.email,
             "full_name": user.full_name,
             "is_active": user.is_active,
-            "created_at": user.created_at,
-            "income": getattr(user, "income", 0.0)
+            "created_at": user.created_at.isoformat() if user.created_at else None,
+            "income": getattr(user, "income", 0.0),
+            "income_type": getattr(user, "income_type", "monthly"),
+            "last_reset_date": user.last_reset_date.isoformat() if user.last_reset_date else None,
+            "next_reset_date": user.next_reset_date.isoformat() if user.next_reset_date else None
         }
     }
 
@@ -78,7 +85,62 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
         full_name=current_user.full_name,
         is_active=current_user.is_active,
         created_at=current_user.created_at,
-        income=getattr(current_user, "income", 0.0)  # 👈 agregado
+        income=getattr(current_user, "income", 0.0),
+        income_type=getattr(current_user, "income_type", "monthly"),
+        last_reset_date=current_user.last_reset_date,
+        next_reset_date=current_user.next_reset_date
+    )
+
+
+@router.get("/me/current-income")
+async def get_current_income(current_user: User = Depends(get_current_active_user)):
+    """
+    Obtiene el ingreso actual del usuario considerando el tipo de pago
+    - Si es mensual: retorna el ingreso completo
+    - Si es quincenal: retorna mitad antes del día 15, completo después
+    """
+    users_collection = await get_collection("users")
+    db = users_collection.database
+    balance_service = BalanceService(db)
+    
+    current_income = await balance_service.get_user_current_income(str(current_user.id))
+    
+    return {
+        "user_id": str(current_user.id),
+        "income_type": current_user.income_type,
+        "total_income": current_user.income,
+        "current_available_income": current_income,
+        "next_reset_date": current_user.next_reset_date.isoformat() if current_user.next_reset_date else None
+    }
+
+
+@router.put("/me", response_model=UserResponse)
+async def update_user_profile(
+    user_update: UserUpdate,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Update current user profile"""
+    auth_service = AuthService()
+    
+    updated_user = await auth_service.update_user(str(current_user.id), user_update)
+    
+    if not updated_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    return UserResponse(
+        id=str(updated_user.id),
+        username=updated_user.username,
+        email=updated_user.email,
+        full_name=updated_user.full_name,
+        is_active=updated_user.is_active,
+        created_at=updated_user.created_at,
+        income=getattr(updated_user, "income", 0.0),
+        income_type=getattr(updated_user, "income_type", "monthly"),
+        last_reset_date=updated_user.last_reset_date,
+        next_reset_date=updated_user.next_reset_date
     )
 
 
@@ -86,3 +148,18 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 async def logout():
     """Logout user (client should remove token)"""
     return {"message": "Successfully logged out"}
+
+
+@router.post("/admin/reset-balances")
+async def reset_all_balances(current_user: User = Depends(get_current_active_user)):
+    """
+    Endpoint administrativo para forzar el reset de todos los usuarios
+    (solo para pruebas o mantenimiento)
+    """
+    users_collection = await get_collection("users")
+    db = users_collection.database
+    balance_service = BalanceService(db)
+    
+    result = await balance_service.check_and_reset_all_users()
+    
+    return result

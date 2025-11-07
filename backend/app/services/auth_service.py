@@ -5,6 +5,7 @@ from app.models.user import User
 from app.schemas.user import UserCreate, UserUpdate
 from app.database.mongodb import get_collection
 from app.utils.security import get_password_hash, verify_password
+from app.services.balance_service import BalanceService
 
 
 class AuthService:
@@ -37,6 +38,7 @@ class AuthService:
     async def create_user(self, user_data: UserCreate) -> User:
         """Create a new user"""
         users_collection = await get_collection("users")
+        db = users_collection.database
 
         # Check if user already exists
         existing_user = await self.get_user_by_email(user_data.email)
@@ -51,24 +53,38 @@ class AuthService:
         if existing_username:
             username = f"{username}_{int(datetime.utcnow().timestamp())}"
 
-        # ✅ Hashear contraseña
+        # Hashear contraseña
         hashed_password = get_password_hash(user_data.password)
+        
+        # Obtener tipo de ingreso y calcular fechas
+        income_type = getattr(user_data, "income_type", "monthly")
+        income = getattr(user_data, "income", 0.0)
+        
+        # Inicializar servicio de balance para calcular fechas
+        balance_service = BalanceService(db)
+        current_date = datetime.utcnow()
+        next_reset = balance_service.calculate_next_reset_date(income_type, current_date)
 
-        # ✅ Crear el diccionario del nuevo usuario
+        # Crear el diccionario del nuevo usuario
         user_dict = {
             "username": username,
             "email": user_data.email,
             "full_name": getattr(user_data, "full_name", None),
             "hashed_password": hashed_password,
             "is_active": True,
-            "income": getattr(user_data, "income", 0.0),  # 👈 aquí se guarda el ingreso
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow()
+            "income": income,
+            "income_type": income_type,
+            "last_reset_date": current_date,
+            "next_reset_date": next_reset,
+            "created_at": current_date,
+            "updated_at": current_date
         }
 
-        # ✅ Insertar en la base de datos
+        # Insertar en la base de datos
         result = await users_collection.insert_one(user_dict)
         user_dict["_id"] = result.inserted_id
+
+        print(f"✅ Usuario creado: {username}, Tipo ingreso: {income_type}, Próximo reset: {next_reset}")
 
         return User(**user_dict)
 
@@ -79,11 +95,30 @@ class AuthService:
             return None
         if not verify_password(password, user.hashed_password):
             return None
+        
+        # Verificar y actualizar balance si es necesario
+        users_collection = await get_collection("users")
+        db = users_collection.database
+        balance_service = BalanceService(db)
+        
+        user_dict = {
+            "_id": user.id,
+            "income_type": user.income_type,
+            "income": user.income,
+            "next_reset_date": user.next_reset_date
+        }
+        
+        if await balance_service.should_reset_user_balance(user_dict):
+            await balance_service.reset_user_balance(str(user.id))
+            # Recargar usuario actualizado
+            user = await self.get_user_by_id(str(user.id))
+        
         return user
 
     async def update_user(self, user_id: str, user_update: UserUpdate) -> Optional[User]:
         """Update user information"""
         users_collection = await get_collection("users")
+        db = users_collection.database
 
         # Check if user exists
         existing_user = await self.get_user_by_id(user_id)
@@ -92,6 +127,19 @@ class AuthService:
 
         # Prepare update data
         update_data = user_update.dict(exclude_unset=True)
+        
+        # Si se actualiza el tipo de ingreso, recalcular fechas
+        if "income_type" in update_data or "income" in update_data:
+            balance_service = BalanceService(db)
+            income_type = update_data.get("income_type", existing_user.income_type)
+            current_date = datetime.utcnow()
+            next_reset = balance_service.calculate_next_reset_date(income_type, current_date)
+            
+            update_data["last_reset_date"] = current_date
+            update_data["next_reset_date"] = next_reset
+            
+            print(f"🔄 Actualizando tipo de ingreso a: {income_type}, Próximo reset: {next_reset}")
+        
         if update_data:
             update_data["updated_at"] = datetime.utcnow()
 

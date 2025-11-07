@@ -7,6 +7,7 @@ from app.schemas.expense import (
 )
 from app.models.user import User
 from app.services.expense_service import ExpenseService
+from app.services.recurring_service import RecurringService
 from app.utils.dependencies import get_current_active_user
 
 router = APIRouter(prefix="/expenses", tags=["expenses"])
@@ -39,10 +40,14 @@ async def get_expenses(
             id=str(expense.id),
             user_id=str(expense.user_id),
             title=expense.title,
-            amount=expense.amount,
+            amount=abs(expense.amount),
             category=expense.category,
             description=expense.description,
             date=expense.date,
+            type=expense.type,
+            is_recurring=expense.is_recurring,
+            recurrence_day=expense.recurrence_day,
+            parent_recurring_id=str(expense.parent_recurring_id) if expense.parent_recurring_id else None,
             created_at=expense.created_at,
             updated_at=expense.updated_at
         )
@@ -75,10 +80,14 @@ async def get_expense(
         id=str(expense.id),
         user_id=str(expense.user_id),
         title=expense.title,
-        amount=expense.amount,
+        amount=abs(expense.amount),
         category=expense.category,
         description=expense.description,
         date=expense.date,
+        type=expense.type,
+        is_recurring=expense.is_recurring,
+        recurrence_day=expense.recurrence_day,
+        parent_recurring_id=str(expense.parent_recurring_id) if expense.parent_recurring_id else None,
         created_at=expense.created_at,
         updated_at=expense.updated_at
     )
@@ -91,16 +100,24 @@ async def create_expense(
     """Create a new expense"""
     expense_service = ExpenseService()
     
+    print(f"📥 Datos recibidos: {expense_data.dict()}")
+    
     expense = await expense_service.create_expense(str(current_user.id), expense_data)
+    
+    print(f"💾 Guardado en DB: amount={expense.amount}, type={expense.type}")
     
     return ExpenseResponse(
         id=str(expense.id),
         user_id=str(expense.user_id),
         title=expense.title,
-        amount=expense.amount,
+        amount=abs(expense.amount),
         category=expense.category,
         description=expense.description,
         date=expense.date,
+        type=expense.type,
+        is_recurring=expense.is_recurring,
+        recurrence_day=expense.recurrence_day,
+        parent_recurring_id=str(expense.parent_recurring_id) if expense.parent_recurring_id else None,
         created_at=expense.created_at,
         updated_at=expense.updated_at
     )
@@ -128,10 +145,14 @@ async def update_expense(
         id=str(expense.id),
         user_id=str(expense.user_id),
         title=expense.title,
-        amount=expense.amount,
+        amount=abs(expense.amount),
         category=expense.category,
         description=expense.description,
         date=expense.date,
+        type=expense.type,
+        is_recurring=expense.is_recurring,
+        recurrence_day=expense.recurrence_day,
+        parent_recurring_id=str(expense.parent_recurring_id) if expense.parent_recurring_id else None,
         created_at=expense.created_at,
         updated_at=expense.updated_at
     )
@@ -184,3 +205,76 @@ async def get_expenses_by_category(
     )
     
     return [CategoryStats(**stat) for stat in category_stats]
+
+@router.get("/recurring", response_model=List[ExpenseResponse])
+async def get_recurring_expenses(
+    current_user: User = Depends(get_current_active_user)
+):
+    """Obtiene todos los gastos recurrentes del usuario"""
+    recurring_service = RecurringService()
+    
+    recurring = await recurring_service.get_recurring_expenses(str(current_user.id))
+    
+    return [
+        ExpenseResponse(
+            id=str(exp["_id"]),
+            user_id=str(exp["user_id"]),
+            title=exp["title"],
+            amount=abs(exp["amount"]),
+            category=exp["category"],
+            description=exp.get("description"),
+            date=exp["date"],
+            type=exp["type"],
+            is_recurring=exp.get("is_recurring", False),
+            recurrence_day=exp.get("recurrence_day"),
+            parent_recurring_id=str(exp.get("parent_recurring_id")) if exp.get("parent_recurring_id") else None,
+            created_at=exp["created_at"],
+            updated_at=exp["updated_at"]
+        )
+        for exp in recurring
+    ]
+
+@router.post("/recurring/process")
+async def process_recurring_expenses(
+    current_user: User = Depends(get_current_active_user)
+):
+    """
+    Procesa los gastos recurrentes del usuario y crea instancias para el mes actual.
+    Este endpoint puede ser llamado manualmente o por un cron job.
+    """
+    recurring_service = RecurringService()
+    created_count = await recurring_service.process_recurring_expenses()
+    
+    return {
+        "message": "Gastos recurrentes procesados",
+        "created": created_count
+    }
+
+@router.delete("/recurring/{expense_id}")
+async def delete_recurring_expense(
+    expense_id: str,
+    delete_future: bool = Query(False, description="Eliminar también instancias futuras"),
+    current_user: User = Depends(get_current_active_user)
+):
+    """
+    Elimina un gasto recurrente.
+    Si delete_future=True, elimina también todas las instancias futuras generadas.
+    """
+    recurring_service = RecurringService()
+    
+    success = await recurring_service.delete_recurring_expense(
+        expense_id, 
+        str(current_user.id),
+        delete_future
+    )
+    
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Gasto recurrente no encontrado"
+        )
+    
+    return {
+        "message": "Gasto recurrente eliminado",
+        "deleted_future": delete_future
+    }

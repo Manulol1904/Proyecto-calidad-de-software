@@ -19,7 +19,7 @@ async def connect_to_mongo():
     settings = get_settings()
     
     try:
-        db.client = AsyncIOMotorClient(settings.mongodb_url)
+        db.client = AsyncIOMotorClient(settings.mongodb_uri)
         db.database = db.client[settings.database_name]
         
         # Test the connection
@@ -30,9 +30,9 @@ async def connect_to_mongo():
         await create_indexes()
         
     except Exception as e:
-        print(f"⚠️ MongoDB no disponible: {e}")
+        print(f"⚠ MongoDB no disponible: {e}")
         print("🔄 El servidor iniciará sin conexión a base de datos")
-        print("💡 Asegúrate de que MongoDB esté ejecutándose en:", settings.mongodb_url)
+        print("💡 Asegúrate de que MongoDB esté ejecutándose en:", settings.mongodb_uri)
         # No lanzamos la excepción para permitir que el servidor inicie
 
 async def close_mongo_connection():
@@ -57,7 +57,7 @@ async def create_indexes():
         
         print("📊 Índices de base de datos creados")
     except Exception as e:
-        print(f"⚠️ Error creando índices: {e}")
+        print(f"⚠ Error creando índices: {e}")
 
 async def get_collection(collection_name: str):
     """Get a specific collection from the database"""

@@ -13,6 +13,13 @@ class Expense(BaseModel):
     category: str = Field(..., min_length=1, max_length=50)
     description: Optional[str] = Field(None, max_length=500)
     date: datetime = Field(default_factory=datetime.utcnow)
+    type: str = Field(default="expense", pattern="^(income|expense)$")
+    
+    # 🔁 Nuevos campos para recurrencia
+    is_recurring: bool = Field(default=False)
+    recurrence_day: Optional[int] = Field(None, ge=1, le=31)  # Día del mes (1-31)
+    parent_recurring_id: Optional[PyObjectId] = Field(None)  # ID del gasto recurrente padre
+    
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     
@@ -22,11 +29,14 @@ class Expense(BaseModel):
         "json_encoders": {ObjectId: str},
         "json_schema_extra": {
             "example": {
-                "title": "Comida",
-                "amount": 25.50,
-                "category": "Alimentación",
-                "description": "Almuerzo en restaurante",
-                "date": "2024-01-15T12:00:00Z"
+                "title": "Netflix",
+                "amount": 45000,
+                "category": "Suscripciones",
+                "description": "Suscripción mensual",
+                "date": "2024-01-15T12:00:00Z",
+                "type": "expense",
+                "is_recurring": True,
+                "recurrence_day": 15
             }
         }
     }
