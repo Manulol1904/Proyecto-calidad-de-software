@@ -1,382 +1,652 @@
 /* ==============================
    💰 ESTILOS DE LA PÁGINA DE GASTOS (AZUL OSCURO Y BLANCO)
    ============================== */
-:root {
-  --primary-color: #0a1a3c;      /* Azul oscuro principal */
-  --secondary-color: #1e3a8a;    /* Azul brillante */
-  --accent-color: #ffffff;       /* Blanco */
-  --hover-color: #ffffff;        /* Blanco al pasar el cursor */
-  --text-color: #0a0a0a;
-  --text-light: #4b5563;
-  --border: #d1d5db;
-  --shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-}
+   :root {
+    --primary-color: #0a1a3c;      /* Azul oscuro principal */
+    --secondary-color: #1e3a8a;    /* Azul brillante */
+    --accent-color: #ffffff;       /* Blanco */
+    --hover-color: #ffffff;        /* Blanco al pasar el cursor */
+    --text-color: #0a0a0a;
+    --text-light: #4b5563;
+    --border: #d1d5db;
+    --shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    }
+    
+    .expenses-page {
+    font-family: "Poppins", sans-serif;
+    background-color: #f4f6fa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: var(--text-color);
+    overflow-x: hidden;
+    }
+    
+    /* ==============================
+       🔹 Navbar fijo en la parte superior
+       ============================== */
+    .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: var(--accent-color);
+    padding: 15px 30px;
+    box-shadow: var(--shadow);
+    }
+    
+    .nav-title {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    }
+    
+    .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    }
+    
+    .nav-links a,
+    .nav-links button.logout-btn {
+    color: var(--accent-color);
+    margin-left: 15px;
+    text-decoration: none;
+    font-weight: 500;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    }
+    
+    .nav-links a:hover,
+    .nav-links button.logout-btn:hover {
+    background-color: var(--accent-color);
+    color: var(--secondary-color);
+    border-radius: 6px;
+    padding: 6px 12px;
+    }
+    
+    /* ==============================
+       🧩 GRID PRINCIPAL (FIJO SIN SCROLL LATERAL)
+       ============================== */
+    .expenses-grid {
+    display: grid;
+    grid-template-columns: 32% 68%;
+    gap: 30px;
+    padding: 100px 40px 30px;
+    min-height: calc(100vh - 130px); /* Mayor espacio sin tocar footer */
+    max-height: calc(100vh - 130px);
+    box-sizing: border-box;
+    }
+    
+    /* ==============================
+       🧾 FORMULARIO (IZQUIERDA)
+       ============================== */
+    .form-column {
+    background: #fff;
+    border-radius: 18px;
+    padding: 30px 25px;
+    box-shadow: var(--shadow);
+    overflow-y: auto;
+    height: 100%;
+    }
+    
+    .form-column::-webkit-scrollbar {
+    width: 6px;
+    }
+    .form-column::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+    }
+    
+    /* ==============================
+       📋 TABLA Y FILTROS (DERECHA)
+       ============================== */
+    .table-column {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 18px;
+    padding: 30px 25px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    height: 100%;
+    }
+    
+    /* === FILTROS === */
+    .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    }
+    
+    .filter-bar input,
+    .filter-bar select {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #fff;
+    font-size: 0.95rem;
+    transition: 0.3s;
+    }
+    
+    .filter-bar input:focus,
+    .filter-bar select:focus {
+    border-color: var(--secondary-color);
+    outline: none;
+    box-shadow: 0 0 4px rgba(30, 58, 138, 0.3);
+    }
+    
+    /* === BOTONES === */
+    .btn-pdf {
+    background: var(--secondary-color);
+    color: var(--accent-color);
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    }
+    .btn-pdf:hover {
+    background: var(--accent-color);
+    color: var(--secondary-color);
+    border: 2px solid var(--secondary-color);
+    transform: translateY(-2px);
+    }
+    
+    /* === CONTENEDOR DE TABLA === */
+    .table-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+    border-top: 2px solid #eee;
+    padding-top: 10px;
+    }
+    
+    .table-container h3 {
+    color: var(--secondary-color);
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    }
+    
+    /* === SCROLL INTERNO DE TABLA === */
+    .table-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-radius: 10px;
+    }
+    
+    .table-scroll-area::-webkit-scrollbar {
+    width: 6px;
+    }
+    .table-scroll-area::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 4px;
+    }
+    
+    /* === TABLA === */
+    .expense-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    table-layout: fixed;
+    }
+    
+    .expense-table th,
+    .expense-table td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    word-wrap: break-word;
+    }
+    
+    .expense-table th {
+    background-color: var(--secondary-color);
+    color: white;
+    font-weight: 500;
+    }
+    
+    .expense-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+    }
+    
+    .expense-table tr:hover {
+    background-color: #eef2ff;
+    }
+    
+    /* ==============================
+       📊 GRÁFICAS O BLOQUES EXTRA
+       ============================== */
+    .chart-container {
+    background: #fff;
+    border-radius: 18px;
+    padding: 25px 30px;
+    margin-top: 20px;
+    box-shadow: var(--shadow);
+    }
+    
+    .chart-container h3 {
+    color: var(--secondary-color);
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    }
+    
+    /* ==============================
+       🔹 FOOTER FIJO ABAJO
+       ============================== */
+    .app-footer {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: var(--accent-color);
+    text-align: center;
+    padding: 15px 0;
+    font-size: 0.9rem;
+    box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.1);
+    margin-top: auto;
+    flex-shrink: 0;
+    }
+    
+    /* ==============================
+       📱 RESPONSIVE DESIGN
+       ============================== */
+    @media (max-width: 900px) {
+    .expenses-grid {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    max-height: none;
+    padding: 120px 20px 40px;
+    }
+    
+    .form-column,
+    .table-column {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    }
+    
+    .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    }
+    
+    .btn-pdf {
+    width: 100%;
+    }
+    
+    .navbar {
+    flex-direction: column;
+    gap: 10px;
+    }
+    
+    .nav-links {
+    flex-wrap: wrap;
+    }
+    }
 
-.expenses-page {
-  font-family: "Poppins", sans-serif;
-  background-color: #f4f6fa;
-  min-height: 100vh;
+    /* ==============================
+   🎨 MEJORAS BARRA DE FILTROS
+   ============================== */
+.table-column .filter-bar {
   display: flex;
   flex-direction: column;
-  color: var(--text-color);
+  gap: 15px;
+  margin-bottom: 20px;
 }
 
-/* ==============================
-   🔹 Navbar fijo en la parte superior
-   ============================== */
-.navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
+.search-input-large {
   width: 100%;
-  z-index: 1000;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  color: var(--accent-color);
-  padding: 15px 30px;
-  border-radius: 0;
-  box-shadow: var(--shadow);
-}
-
-.nav-title {
-  font-size: 1.6rem;
-  font-weight: 600;
-  color: var(--accent-color);
-}
-
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.nav-links a,
-.nav-links button.logout-btn {
-  color: var(--accent-color);
-  margin-left: 15px;
-  text-decoration: none;
-  font-weight: 500;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.nav-links a:hover,
-.nav-links button.logout-btn:hover {
-  background-color: var(--accent-color);
-  color: var(--secondary-color);
-  border-radius: 6px;
-  padding: 6px 12px;
-}
-
-/* ==============================
-   🔹 Ajuste del contenido debajo del navbar
-   ============================== */
-.expenses-content {
-  flex: 1;
-  padding: 100px 30px 80px; /* Deja espacio para navbar y footer */
-}
-
-/* ==============================
-   ⚠️ ALERTAS
-   ============================== */
-.alert-box {
-  background-color: #e0e7ff;
-  color: var(--secondary-color);
-  border: 1px solid #c7d2fe;
-  border-radius: 10px;
-  padding: 15px 20px;
-  margin-bottom: 25px;
-  box-shadow: var(--shadow);
-}
-
-.alert-box p {
-  margin: 0;
-  font-weight: 500;
-}
-
-/* ==============================
-   🔍 FILTROS
-   ============================== */
-.filter-bar {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 30px;
-  flex-wrap: wrap;
-}
-
-.filter-bar input,
-.filter-bar select {
-  padding: 10px 14px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
+  padding: 12px 18px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
   background: #fff;
-  font-size: 0.95rem;
-  transition: 0.3s;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.filter-bar input:focus,
-.filter-bar select:focus {
+.search-input-large:focus {
   border-color: var(--secondary-color);
   outline: none;
-  box-shadow: 0 0 4px rgba(30, 58, 138, 0.3);
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+}
+
+.search-input-large::placeholder {
+  color: #9ca3af;
+}
+
+.filter-controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-select,
+.date-input {
+  padding: 10px 16px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #374151;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  min-width: 150px;
+}
+
+.filter-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%231e3a8a' height='20' viewBox='0 0 24 24' width='20'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+.date-input {
+  min-width: 140px;
+  cursor: text;
+}
+
+.filter-select:hover,
+.date-input:hover {
+  border-color: var(--secondary-color);
+  box-shadow: 0 2px 8px rgba(30, 58, 138, 0.1);
+}
+
+.filter-select:focus,
+.date-input:focus {
+  border-color: var(--secondary-color);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+}
+
+.btn-recurring,
+.btn-pdf {
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 .btn-pdf {
   background: var(--secondary-color);
-  color: var(--accent-color);
-  border: none;
-  padding: 10px 18px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 500;
+}
+
+.btn-recurring:hover,
+.btn-pdf:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .btn-pdf:hover {
-  background: var(--accent-color);
-  color: var(--secondary-color);
-  border: 2px solid var(--secondary-color);
-  transform: translateY(-2px);
+  background: var(--primary-color);
 }
 
 /* ==============================
-   📈 COMPARADOR DE MESES
+   📊 HEADER DE TABLA
    ============================== */
-.month-compare {
-  background: #fff;
-  border-radius: 18px;
-  padding: 25px 30px;
-  margin-bottom: 35px;
-  box-shadow: var(--shadow);
-  border-left: 6px solid var(--secondary-color);
-}
-
-.month-compare h3 {
-  color: var(--secondary-color);
-  font-size: 1.3rem;
-  margin-bottom: 10px;
-}
-
-.month-compare p {
-  font-size: 1rem;
-  margin: 6px 0;
-}
-
-.text-danger {
-  color: #dc2626;
-  font-weight: 600;
-}
-
-.text-success {
-  color: #16a34a;
-  font-weight: 600;
-}
-
-.text-neutral {
-  color: #555;
-  font-weight: 500;
-}
-
-/* ==============================
-   🧾 FORMULARIOS
-   ============================== */
-.form-container {
-  background: #fff;
-  border-radius: 18px;
-  padding: 25px 30px;
-  margin-bottom: 35px;
-  box-shadow: var(--shadow);
-}
-
-.form-container h3 {
-  color: var(--secondary-color);
-  font-size: 1.2rem;
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0 15px 0;
+  border-bottom: 3px solid var(--secondary-color);
   margin-bottom: 15px;
 }
 
-.main-form,
-.auto-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  align-items: center;
+.table-header h3 {
+  color: var(--secondary-color);
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0;
 }
 
-.main-form input,
-.auto-form input,
-.main-form select,
-.auto-form select {
-  flex: 1 1 180px;
-  padding: 10px 14px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: #f9fafb;
-  transition: 0.2s;
-}
-
-.main-form input:focus,
-.auto-form input:focus,
-.main-form select:focus,
-.auto-form select:focus {
-  border-color: var(--secondary-color);
-  outline: none;
-  box-shadow: 0 0 4px rgba(30, 58, 138, 0.3);
-}
-
-.btn-ingreso,
-.btn-auto {
+.record-count {
   background: var(--secondary-color);
-  color: #fff;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* ==============================
+   🎨 TABLA LIMPIA Y COMPACTA
+   ============================== */
+.table-column .expense-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  table-layout: fixed;
+}
+
+.table-column .expense-table th {
+  background: transparent;
+  color: #374151;
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 2px solid var(--secondary-color);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.table-column .expense-table td {
+  padding: 12px 8px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  word-wrap: break-word;
+  color: #4b5563;
+  font-size: 0.85rem;
+}
+
+.table-column .expense-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.table-column .expense-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.amount-income {
+  color: #10b981;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.amount-expense {
+  color: #ef4444;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.table-column .expense-table button {
+  background: #ef4444;
+  color: white;
   border: none;
-  padding: 10px 18px;
-  border-radius: 10px;
+  padding: 6px 12px;
+  border-radius: 6px;
   cursor: pointer;
-  font-weight: 500;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.table-column .expense-table button:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* ==============================
+   🪟 MODAL PDF
+   ============================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h3 {
+  color: var(--secondary-color);
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.modal-form label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.modal-select,
+.modal-input {
+  padding: 12px 16px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.95rem;
   transition: all 0.3s ease;
 }
 
-.btn-ingreso:hover,
-.btn-auto:hover {
-  background: var(--accent-color);
-  color: var(--secondary-color);
-  border: 2px solid var(--secondary-color);
-  transform: translateY(-2px);
+.modal-select {
+  cursor: pointer;
+  appearance: none;
+  background: #fff url("data:image/svg+xml;utf8,<svg fill='%231e3a8a' height='20' viewBox='0 0 24 24' width='20'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
 }
 
-/* ==============================
-   📋 TABLA DE MOVIMIENTOS
-   ============================== */
-.table-container {
-  background: #fff;
-  border-radius: 18px;
-  padding: 25px 30px;
-  box-shadow: var(--shadow);
-  margin-bottom: 40px;
+.modal-select:focus,
+.modal-input:focus {
+  border-color: var(--secondary-color);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
 }
 
-.table-container h3 {
-  color: var(--secondary-color);
-  font-size: 1.2rem;
-  margin-bottom: 15px;
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
 }
 
-.expense-table {
-  width: 100%;
-  border-collapse: collapse;
+.btn-cancel,
+.btn-generate {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
   font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.expense-table th,
-.expense-table td {
-  padding: 12px 16px;
-  text-align: left;
-  border-bottom: 1px solid #eee;
+.btn-cancel {
+  background: #e5e7eb;
+  color: #374151;
 }
 
-.expense-table th {
-  background-color: var(--secondary-color);
+.btn-cancel:hover {
+  background: #d1d5db;
+}
+
+.btn-generate {
+  background: var(--secondary-color);
   color: white;
-  font-weight: 500;
 }
 
-.expense-table tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-.expense-table tr:hover {
-  background-color: #eef2ff;
+.btn-generate:hover {
+  background: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
 }
 
 /* ==============================
-   📊 GRÁFICA
+   📱 RESPONSIVE
    ============================== */
-.chart-container {
-  background: #fff;
-  border-radius: 18px;
-  padding: 25px 30px;
-  margin-top: 20px;
-  box-shadow: var(--shadow);
-}
+@media (max-width: 900px) {
+  .filter-controls {
+    width: 100%;
+  }
 
-.chart-container h3 {
-  color: var(--secondary-color);
-  font-size: 1.2rem;
-  margin-bottom: 15px;
-}
+  .filter-select,
+  .date-input,
+  .btn-recurring,
+  .btn-pdf {
+    flex: 1;
+    min-width: 0;
+  }
 
-/* ==============================
-   🔹 FOOTER
-   ============================== */
-.footer {
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  color: var(--accent-color);
-  text-align: center;
-  padding: 20px 0;
-  font-size: 0.95rem;
-  margin-top: auto;
-  box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.1);
-}
-
-.footer a {
-  color: var(--accent-color);
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
-
-.footer a:hover {
-  color: var(--hover-color);
-  text-decoration: underline;
-}
-
-/* ==============================
-   📱 RESPONSIVE DESIGN
-   ============================== */
-@media (max-width: 768px) {
-  .navbar {
+  .table-header {
     flex-direction: column;
     gap: 10px;
     align-items: flex-start;
   }
 
-  .nav-links {
+  .table-column .expense-table {
+    font-size: 0.75rem;
+  }
+
+  .table-column .expense-table th {
+    font-size: 0.7rem;
+    padding: 8px 6px;
+  }
+
+  .table-column .expense-table td {
+    padding: 10px 6px;
+  }
+
+  .modal-content {
+    padding: 20px;
+  }
+
+  .modal-actions {
     flex-direction: column;
+  }
+
+  .btn-cancel,
+  .btn-generate {
     width: 100%;
-  }
-
-  .nav-links a,
-  .nav-links button.logout-btn {
-    margin-left: 0;
-    width: 100%;
-    text-align: left;
-  }
-
-  .filter-bar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .main-form,
-  .auto-form {
-    flex-direction: column;
-  }
-
-  .btn-pdf,
-  .btn-ingreso,
-  .btn-auto {
-    width: 100%;
-  }
-
-  .chart-container {
-    padding: 15px;
-  }
-
-  .expenses-content {
-    padding-top: 120px;
   }
 }

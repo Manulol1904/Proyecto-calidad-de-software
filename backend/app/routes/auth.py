@@ -8,6 +8,13 @@ from app.utils.security import create_access_token
 from app.utils.dependencies import get_current_active_user
 from app.config.settings import get_settings
 from app.database.mongodb import get_collection
+from fastapi import BackgroundTasks
+from app.schemas.user import PasswordResetRequest
+from app.utils.email_utils import send_reset_email 
+from app.schemas.user import PasswordResetConfirm
+import urllib.parse
+
+
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 
@@ -163,3 +170,47 @@ async def reset_all_balances(current_user: User = Depends(get_current_active_use
     result = await balance_service.check_and_reset_all_users()
     
     return result
+
+@router.post("/forgot-password")
+async def forgot_password(request: PasswordResetRequest):
+    """
+    Envía un correo con enlace para restablecer contraseña
+    """
+    email = request.email
+    users_collection = await get_collection("users")
+    user = await users_collection.find_one({"email": email})
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No existe un usuario con ese correo"
+        )
+
+    # Generar token de recuperación (válido por 1 hora)
+    token = create_access_token({"sub": email}, expires_delta=timedelta(hours=1))
+    encoded_token = urllib.parse.quote(token)
+    reset_link = f"http://localhost:5173/reset-password?token={encoded_token}"
+
+    # Enviar correo (simulado o real)
+    try:
+        await send_reset_email(email, reset_link)
+    except Exception as e:
+        print("⚠️ Error al enviar correo:", e)
+
+    return {"message": "Se ha enviado un enlace para restablecer la contraseña."}
+
+
+
+@router.post("/reset-password")
+async def reset_password(data: PasswordResetConfirm):
+    auth_service = AuthService()
+    
+    try:
+        email = auth_service.verify_reset_token(data.token)
+        print("Token válido para email:", email)
+    except Exception as e:
+        print("Error en verificación de token:", e)
+        raise HTTPException(status_code=400, detail="Token inválido o expirado")
+
+    await auth_service.update_password(email, data.new_password)
+    return {"message": "Contraseña actualizada exitosamente"}

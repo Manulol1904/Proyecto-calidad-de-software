@@ -28,7 +28,7 @@ export function CurrencyProvider({ children }) {
   useEffect(() => {
     if (!isAuthenticated) {
       console.log("💱 Reseteando configuración de moneda");
-      setSelectedCurrency('USD');
+      setSelectedCurrency('COP');
       setExchangeRates({});
       setLastUpdate(null);
       // No limpiar localStorage aquí porque AuthProvider ya lo hace

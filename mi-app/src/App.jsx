@@ -8,6 +8,7 @@ import Settings from "./pages/Settings";
 import { useAuth } from "./context/AuthProvider";
 import ForgotPassword from "./components/Auth/ForgotPassword";
 import AdminDashboard from "./pages/AdminDashboard";
+import ResetPasswordPage from "./pages/reset-password";
 
 function Protected({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -33,12 +34,14 @@ function Protected({ children }) {
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 }
 
+
 export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       
       {/* Rutas protegidas */}
       <Route 

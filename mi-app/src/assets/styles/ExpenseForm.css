@@ -1,0 +1,224 @@
+.expense-form-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background-color: transparent;
+    padding: 0;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+  
+  .expense-form {
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    box-sizing: border-box;
+  }
+  
+  .form-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e3a8a;
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+  
+  .expense-form input,
+  .expense-form select {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 2px solid #e5e7eb;
+    font-size: 0.95rem;
+    background-color: #fff;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+  }
+  
+  .expense-form input:focus,
+  .expense-form select:focus {
+    outline: none;
+    border-color: #1e3a8a;
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+  }
+  
+  /* === FILA DE TIPO Y RECURRENTE === */
+  .form-type-recurring {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: end;
+  }
+  
+  .select-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .select-container label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #374151;
+  }
+  
+  .select-container select {
+    appearance: none;
+    background: #fff url("data:image/svg+xml;utf8,<svg fill='%231e3a8a' height='20' viewBox='0 0 24 24' width='20'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat right 1rem center;
+    background-size: 1rem;
+    cursor: pointer;
+    padding-right: 2.5rem;
+  }
+  
+  .recurring-checkbox {
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    height: 42px;
+    box-sizing: border-box;
+  }
+  
+  .checkbox-label-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    color: #374151;
+    margin: 0;
+  }
+  
+  .checkbox-label-inline input {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .checkbox-label-inline span {
+    white-space: nowrap;
+  }
+  
+  /* === GRUPO DE FORMULARIO === */
+  .relative {
+    position: relative;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .suggestions-box {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 50;
+  }
+  
+  .suggestion-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.15s;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  
+  .suggestion-item:last-child {
+    border-bottom: none;
+  }
+  
+  .suggestion-item:hover {
+    background-color: #eff6ff;
+    color: #1e3a8a;
+  }
+  
+  /* === DÍA DE RECURRENCIA === */
+  .recurrence-day {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: #4b5563;
+    padding: 0.9rem;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+  }
+  
+  .recurrence-day label {
+    font-weight: 500;
+  }
+  
+  .recurrence-day input {
+    width: 60px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 2px solid #d1d5db;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  
+  .recurrence-day span {
+    font-weight: 500;
+  }
+  
+  /* === BOTÓN SUBMIT === */
+  .submit-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #0a1a3c, #1e3a8a);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 0.4rem;
+    box-shadow: 0 4px 12px rgba(10, 26, 60, 0.2);
+  }
+  
+  .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(10, 26, 60, 0.3);
+    background: linear-gradient(135deg, #1e3a8a, #0a1a3c);
+  }
+  
+  .submit-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(10, 26, 60, 0.2);
+  }
+  
+  /* === RESPONSIVE === */
+  @media (max-width: 600px) {
+    .form-type-recurring {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+  
+    .recurring-checkbox {
+      justify-content: center;
+    }
+  }

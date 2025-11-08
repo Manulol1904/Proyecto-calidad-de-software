@@ -2,11 +2,17 @@ from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 from datetime import datetime
 
+
+# ============================================================
+# 🔹 Base Schemas
+# ============================================================
+
 class UserBase(BaseModel):
     """Base user schema"""
     email: EmailStr
     username: Optional[str] = None
     full_name: Optional[str] = None
+
 
 class UserCreate(UserBase):
     """Schema for user creation"""
@@ -40,6 +46,7 @@ class UserLogin(BaseModel):
         }
     }
 
+
 class UserResponse(UserBase):
     """Schema for user response"""
     id: str
@@ -68,6 +75,7 @@ class UserResponse(UserBase):
         }
     }
 
+
 class UserUpdate(BaseModel):
     """Schema for user update"""
     username: Optional[str] = Field(None, min_length=3, max_length=50)
@@ -88,12 +96,50 @@ class UserUpdate(BaseModel):
         }
     }
 
+
+# ============================================================
+# 🔹 Token Schemas
+# ============================================================
+
 class Token(BaseModel):
     """Schema for authentication token"""
     access_token: str
     token_type: str
     user: Optional[dict] = None
 
+
 class TokenData(BaseModel):
     """Schema for token data"""
     email: Optional[str] = None
+
+
+# ============================================================
+# 🔹 Password Reset Schemas (Nuevos)
+# ============================================================
+
+class PasswordResetRequest(BaseModel):
+    """Schema for requesting password reset"""
+    email: EmailStr
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "email": "john@example.com"
+            }
+        }
+    }
+
+
+class PasswordResetConfirm(BaseModel):
+    """Schema for confirming password reset"""
+    token: str
+    new_password: str = Field(..., min_length=6, max_length=72)
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                "new_password": "newsecurepassword456"
+            }
+        }
+    }

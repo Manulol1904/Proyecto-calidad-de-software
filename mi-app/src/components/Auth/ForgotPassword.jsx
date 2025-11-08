@@ -4,11 +4,28 @@ import "../../assets/styles/login.css";
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Aquí conectarías tu backend o servicio (Firebase, etc.)
-    setSent(true);
+    setError("");
+
+    try {
+      const res = await fetch("http://localhost:8000/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.detail || "Error al enviar el enlace");
+      }
+
+      setSent(true);
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
@@ -31,6 +48,8 @@ export default function ForgotPassword() {
             <button type="submit" className="login-btn">
               Enviar enlace
             </button>
+
+            {error && <p className="error-message">⚠️ {error}</p>}
           </form>
         ) : (
           <div className="success-message">
