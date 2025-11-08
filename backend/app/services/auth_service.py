@@ -101,6 +101,13 @@ class AuthService:
 
         return user
 
+    async def verify_password(self, email: str, password: str) -> bool:
+        """Verifica si la contraseña es correcta"""
+        user = await self.get_user_by_email(email)
+        if not user:
+            return False
+        return verify_password(password, user.hashed_password)
+
     async def update_user(self, user_id: str, user_update: UserUpdate) -> Optional[User]:
         users_collection = await get_collection("users")
         db = users_collection.database

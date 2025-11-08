@@ -1,19 +1,21 @@
 import React from "react";
 import { useExpenses } from "../../context/ExpensesProvider";
+import { useToast } from "../Toast/Toast";
 import api from "../../Api/apiClient";
 
 export default function ExpenseTable({ filter = "", type = "all", customList }) {
   const { list, loadExpenses } = useExpenses();
+  const { addToast } = useToast();
 
   // ✅ Usa lista personalizada si viene desde ExpensesPage
   const data = customList || list;
 
-  const handleDelete = async (id, isRecurring) => {
+  const handleDelete = async (id, isRecurring, title) => {
     if (isRecurring) {
       const deleteFuture = window.confirm(
-        "Este es un gasto recurrente. ¿Deseas eliminar también las futuras instancias automáticas?\n\n" +
-          "✅ Sí = Elimina todo\n" +
-          "❌ No = Solo elimina esta configuración"
+        `¿Deseas eliminar el gasto recurrente "${title}"?\n\n` +
+          "• Sí = Elimina todo (incluyendo futuras instancias)\n" +
+          "• No = Solo elimina esta configuración"
       );
 
       try {
@@ -21,24 +23,25 @@ export default function ExpenseTable({ filter = "", type = "all", customList }) 
         await api.delete(`/expenses/recurring/${id}?delete_future=${deleteFuture}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        alert("✅ Gasto recurrente eliminado");
+        addToast("Gasto recurrente eliminado correctamente", "success");
         loadExpenses();
       } catch (err) {
         console.error(err);
-        alert("❌ Error al eliminar gasto recurrente");
+        addToast("Error al eliminar el gasto recurrente", "error");
       }
     } else {
-      if (!window.confirm("¿Seguro que quieres eliminar este registro?")) return;
+      if (!window.confirm(`¿Seguro que quieres eliminar "${title}"?`)) return;
+      
       try {
         const token = localStorage.getItem("token");
         await api.delete(`/expenses/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        alert("✅ Registro eliminado");
+        addToast("Registro eliminado correctamente", "success");
         loadExpenses();
       } catch (err) {
         console.error(err);
-        alert("❌ Error al eliminar registro");
+        addToast("Error al eliminar el registro", "error");
       }
     }
   };
@@ -53,7 +56,7 @@ export default function ExpenseTable({ filter = "", type = "all", customList }) 
   });
 
   if (filtered.length === 0) {
-    return <p style={{ textAlign: "center", color: "#999" }}>No hay registros</p>;
+    return <p style={{ textAlign: "center", color: "#999", padding: "20px" }}>No hay registros</p>;
   }
 
   return (
@@ -78,13 +81,6 @@ export default function ExpenseTable({ filter = "", type = "all", customList }) 
           const isInstance = exp.parent_recurring_id != null;
           const recurrenceDay = exp.recurrence_day;
 
-          console.log(`Expense: ${exp.title}`, {
-            isRecurring,
-            recurrenceDay,
-            isInstance,
-            raw: exp,
-          });
-
           return (
             <tr
               key={exp.id}
@@ -100,41 +96,24 @@ export default function ExpenseTable({ filter = "", type = "all", customList }) 
               <td>{exp.category}</td>
               <td
                 style={{
-                  color: isIncome ? "#4caf50" : "#e74c3c",
+                  color: isIncome ? "#10b981" : "#ef4444",
                   fontWeight: "600",
                 }}
               >
-                {isIncome ? " Ingreso" : " Gasto"}
+                {isIncome ? "Ingreso" : "Gasto"}
               </td>
               <td className={isIncome ? "amount-income" : "amount-expense"}>
                 ${amount.toFixed(2)}
               </td>
-              <td>{new Date(exp.date).toLocaleDateString()}</td>
+              <td>{new Date(exp.date).toISOString().split("T")[0]}</td>
 
               <td>
                 {isRecurring && recurrenceDay ? (
-                  <span
-                    style={{
-                      background: "#0077cc",
-                      color: "white",
-                      padding: "4px 8px",
-                      borderRadius: "12px",
-                      fontSize: "0.85rem",
-                      fontWeight: "500",
-                    }}
-                  >
-                    🔁 Día {recurrenceDay}
+                  <span className="badge-recurring">
+                    Día {recurrenceDay}
                   </span>
                 ) : isInstance ? (
-                  <span
-                    style={{
-                      background: "#e0e0e0",
-                      color: "#555",
-                      padding: "4px 8px",
-                      borderRadius: "12px",
-                      fontSize: "0.85rem",
-                    }}
-                  >
+                  <span className="badge-auto">
                     Auto
                   </span>
                 ) : (
@@ -146,18 +125,26 @@ export default function ExpenseTable({ filter = "", type = "all", customList }) 
 
               <td>
                 <button
-                  onClick={() => handleDelete(exp.id, isRecurring)}
-                  style={{
-                    background: isRecurring ? "#dc2626" : "#ef4444",
-                    color: "white",
-                    border: "none",
-                    padding: "6px 12px",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                    fontSize: "0.9rem",
-                  }}
+                  onClick={() => handleDelete(exp.id, isRecurring, exp.title)}
+                  className="btn-delete"
+                  title="Eliminar"
                 >
-                  {isRecurring ? "Eliminar recurrente" : "Eliminar"}
+                  <svg 
+                    width="16" 
+                    height="16" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  >
+                    <path d="M3 6h18"/>
+                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                    <line x1="10" y1="11" x2="10" y2="17"/>
+                    <line x1="14" y1="11" x2="14" y2="17"/>
+                  </svg>
                 </button>
               </td>
             </tr>

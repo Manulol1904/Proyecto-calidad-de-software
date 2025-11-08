@@ -278,3 +278,18 @@ async def delete_recurring_expense(
         "message": "Gasto recurrente eliminado",
         "deleted_future": delete_future
     }
+@router.post("/change-password")
+async def change_password(
+    old_password: str,
+    new_password: str,
+    current_user: User = Depends(get_current_active_user)
+):
+    auth_service = AuthService()
+    user = await auth_service.get_user_by_id(str(current_user.id))
+
+    if not verify_password(old_password, user.hashed_password):
+        raise HTTPException(status_code=400, detail="Contraseña actual incorrecta")
+
+    await auth_service.update_password(user.email, new_password)
+    return {"message": "Contraseña actualizada correctamente"}
+

@@ -127,7 +127,7 @@ export function ExpensesProvider({ children }) {
         recurrence_day: expenseData.is_recurring ? expenseData.recurrence_day : null,
       };
 
-      const res = await api.post("/expenses", finalData, {
+      const res = await api.post("/expenses/", finalData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -170,9 +170,7 @@ export function ExpensesProvider({ children }) {
         headers: { Authorization: `Bearer ${token}` },
       });
       dispatch({ type: "SET_USER", payload: res.data });
-      
       await loadCurrentIncome();
-      
       return res.data;
     } catch (err) {
       console.error("❌ Error actualizando usuario:", err);
@@ -180,64 +178,62 @@ export function ExpensesProvider({ children }) {
     }
   };
 
+  // 🔹 Cambiar contraseña del usuario autenticado
+  const changePassword = async ({ oldPassword, newPassword }) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token disponible");
+
+      const res = await api.post(
+        "/auth/me/change-password", // <-- asegúrate de que este endpoint exista en FastAPI
+        { old_password: oldPassword, new_password: newPassword },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      return res.data;
+    } catch (err) {
+      console.error("❌ Error cambiando contraseña:", err);
+      throw err;
+    }
+  };
+
   // 🔹 Inicializar datos cuando el usuario esté autenticado
   useEffect(() => {
-    if (authLoading) {
-      return;
-    }
+    if (authLoading) return;
 
-    // Si no está autenticado, resetear estado
     if (!isAuthenticated) {
-      console.log("❌ No autenticado, reseteando estado de gastos");
       dispatch({ type: "RESET" });
-      
-      // Cerrar WebSocket si existe
       if (wsRef.current) {
-        console.log("🔌 Cerrando WebSocket por logout");
         wsRef.current.close();
         wsRef.current = null;
       }
-      
       return;
     }
 
-    // Si está autenticado y no hemos inicializado, cargar datos
     if (isAuthenticated && !state.initialized) {
-      console.log("✅ Usuario autenticado, cargando datos de gastos...");
-      
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      // Cargar usuario
-      api
-        .get("/auth/me", { headers: { Authorization: `Bearer ${token}` } })
-        .then((res) => {
-          dispatch({ type: "SET_USER", payload: res.data });
-        })
+      api.get("/auth/me", { headers: { Authorization: `Bearer ${token}` } })
+        .then((res) => dispatch({ type: "SET_USER", payload: res.data }))
         .catch((err) => console.error("Error cargando usuario:", err));
 
-      // Cargar gastos e ingreso actual
       loadExpenses();
       loadCurrentIncome();
     }
   }, [isAuthenticated, authLoading, state.initialized]);
 
-  // 🔹 WebSocket - solo si está autenticado
+  // 🔹 WebSocket
   useEffect(() => {
-    // Si no está autenticado, no conectar
     if (!isAuthenticated) {
       if (wsRef.current) {
-        console.log("🔌 Cerrando WebSocket (no autenticado)");
         wsRef.current.close();
         wsRef.current = null;
       }
       return;
     }
 
-    // Si ya hay una conexión activa, no crear otra
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      return;
-    }
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) return;
 
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -246,55 +242,36 @@ export function ExpensesProvider({ children }) {
     const wsBase = apiToWs(base);
     const wsUrl = wsBase.replace(/\/$/, "") + "/ws/expenses?token=" + token;
     
-    console.log("🔌 Conectando WebSocket...");
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
-    ws.onopen = () => {
-      console.log("✅ WebSocket conectado");
-    };
-
+    ws.onopen = () => console.log("✅ WebSocket conectado");
     ws.onmessage = (evt) => {
       try {
         const msg = JSON.parse(evt.data);
-        
         if (msg.type === "new_expense") {
           const exp = msg.payload;
-          const normalized = {
+          dispatch({ type: "ADD", payload: {
             ...exp,
             amount: Math.abs(Number(exp.amount)),
             type: exp.type || "expense",
             is_recurring: exp.is_recurring === true,
             recurrence_day: exp.recurrence_day || null,
             parent_recurring_id: exp.parent_recurring_id || null,
-          };
-          
-          dispatch({ type: "ADD", payload: normalized });
+          } });
         }
       } catch (e) {
         console.error("❌ WS parse error:", e);
       }
     };
+    ws.onerror = (err) => console.error("❌ WebSocket error:", err);
+    ws.onclose = () => { wsRef.current = null; };
 
-    ws.onerror = (err) => {
-      console.error("❌ WebSocket error:", err);
-    };
-
-    ws.onclose = () => {
-      console.log("🔌 WebSocket desconectado");
-      wsRef.current = null;
-    };
-
-    // Cleanup al desmontar o cuando cambie isAuthenticated
     return () => {
-      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
-        console.log("🔌 Cerrando WebSocket (cleanup)");
-        ws.close();
-      }
+      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) ws.close();
     };
   }, [isAuthenticated]);
 
-  // 🔹 Calcular totales
   const totalIncome = state.list
     .filter((i) => i.type === "income")
     .reduce((sum, i) => sum + Math.abs(Number(i.amount) || 0), 0);
@@ -313,6 +290,7 @@ export function ExpensesProvider({ children }) {
         addExpense,
         deleteExpense,
         updateUser,
+        changePassword,
         loadCurrentIncome,
         totalIncome,
         totalExpense,

@@ -48,19 +48,23 @@ export default function ExpenseForm() {
     e.preventDefault();
     try {
       const normalizedCategory = normalizeCategory(category);
-      const expenseData = {
+  
+      // Construir el objeto a enviar al backend
+      const finalData = {
         title,
         amount: Math.abs(Number(amount)),
         category: normalizedCategory,
         description,
-        date: new Date(date).toISOString(),
-        type,
+        date: new Date(date).toISOString(), // <-- formato ISO
+        type: type === "" ? "expense" : type,
         is_recurring: isRecurring,
         recurrence_day: isRecurring ? recurrenceDay : null,
       };
-
-      await addExpense(expenseData);
-
+  
+      // Enviar al backend
+      await addExpense(finalData);
+  
+      // Resetear formulario
       setTitle("");
       setAmount("");
       setCategory("");
@@ -69,7 +73,7 @@ export default function ExpenseForm() {
       setType("expense");
       setIsRecurring(false);
       setRecurrenceDay(1);
-
+  
       addToast(
         `${type === "income" ? "Ingreso" : "Gasto"} ${
           isRecurring ? "recurrente" : ""
@@ -81,6 +85,7 @@ export default function ExpenseForm() {
       addToast("Error al agregar el registro. Por favor intenta nuevamente.", "error");
     }
   };
+  
 
   return (
     <div className="expense-form-wrapper">

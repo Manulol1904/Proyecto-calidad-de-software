@@ -12,6 +12,7 @@ from fastapi import BackgroundTasks
 from app.schemas.user import PasswordResetRequest
 from app.utils.email_utils import send_reset_email 
 from app.schemas.user import PasswordResetConfirm
+from app.schemas.user import PasswordChangeRequest
 import urllib.parse
 
 
@@ -213,4 +214,23 @@ async def reset_password(data: PasswordResetConfirm):
         raise HTTPException(status_code=400, detail="Token inválido o expirado")
 
     await auth_service.update_password(email, data.new_password)
+    return {"message": "Contraseña actualizada exitosamente"}
+
+@router.post("/me/change-password")
+async def change_password(
+    data: PasswordChangeRequest,
+    current_user: User = Depends(get_current_active_user)
+):
+    auth_service = AuthService()
+
+    # Validar contraseña actual
+    if not await auth_service.verify_password(current_user.email, data.old_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Contraseña actual incorrecta"
+        )
+
+    # Actualizar nueva contraseña
+    await auth_service.update_password(current_user.email, data.new_password)
+
     return {"message": "Contraseña actualizada exitosamente"}

@@ -5,12 +5,17 @@ import LogoutButton from "../components/LogoutButton";
 import "../assets/styles/config.css";
 
 export default function Settings() {
-  const { user, updateUser, currentIncome } = useExpenses();
+  const { user, updateUser, currentIncome, changePassword } = useExpenses();
 
   const [income, setIncome] = useState(0);
   const [incomeType, setIncomeType] = useState("monthly");
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
+
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
     if (user) {
@@ -42,9 +47,23 @@ export default function Settings() {
     }
   };
 
-  if (!user) {
-    return <div>Cargando...</div>;
-  }
+  const handleChangePassword = async () => {
+    if (newPassword !== confirmPassword) {
+      return alert("❌ Las contraseñas no coinciden");
+    }
+    try {
+      await changePassword({ oldPassword, newPassword });
+      alert("✅ Contraseña cambiada correctamente");
+      setShowPasswordModal(false);
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err) {
+      alert("❌ Error: " + (err.response?.data?.detail || err.message));
+    }
+  };
+
+  if (!user) return <div>Cargando...</div>;
 
   const nextResetDate = user.next_reset_date
     ? new Date(user.next_reset_date).toLocaleDateString("es-CO", {
@@ -65,9 +84,9 @@ export default function Settings() {
       <nav className="navbar">
         <h2 className="nav-title">Mi Panel</h2>
         <div className="nav-links">
-          <Link to="/"> Dashboard</Link>
-          <Link to="/gastos"> Gastos</Link>
-          <Link to="/config"> Configuración</Link>
+          <Link to="/">Dashboard</Link>
+          <Link to="/gastos">Gastos</Link>
+          <Link to="/config">Configuración</Link>
           <LogoutButton />
         </div>
       </nav>
@@ -76,247 +95,113 @@ export default function Settings() {
         <h1>Configuración del Usuario</h1>
         <p className="subtitle">Gestiona tu cuenta y preferencias</p>
 
-        <div className="settings-grid">
-          {/*  Perfil */}
-          <div className="settings-card">
-            <h2> Perfil</h2>
-            <div className="profile-info">
-              <label>Nombre completo:</label>
-              <br/>
-              <input
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Tu nombre"
-              />
-              <br/>
+        <div className="settings-grid-3cols">
+          {/* COL 1 - PERFIL y SEGURIDAD */}
+          <div className="col">
+            <div className="settings-card form-card">
+              <h2>Perfil</h2>
+              <div className="form-group">
+                <label>Nombre completo</label>
+                <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label>Nombre de usuario</label>
+                <input type="text" value={username} onChange={e => setUsername(e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label>Correo</label>
+                <input type="email" value={user.email} disabled className="disabled-input"/>
+              </div>
+              <button onClick={handleUpdateProfile} className="primary-btn">Guardar cambios</button>
+            </div>
 
-              <label>Nombre de usuario:</label>
-              <br/>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="username"
-              />
-              <br/>
-
-              <label>Correo:</label>
-              <br/>
-              <input
-                type="email"
-                value={user.email}
-                disabled
-                style={{ background: "#f0f0f0", cursor: "not-allowed" }}
-              />
-              <br/>
-
-              <label>Miembro desde:</label>
-              <br/>
-              <input
-                type="text"
-                value={new Date(user.created_at).toLocaleDateString()}
-                disabled
-                style={{ background: "#f0f0f0", cursor: "not-allowed" }}
-              />
-              <br/>
-
-              <button
-                onClick={handleUpdateProfile}
-                style={{
-                  marginTop: "10px",
-                  background: "#080459",
-                  color: "white",
-                  border: "none",
-                  padding: "10px 20px",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                }}
-              >
-                 Guardar cambios
-              </button>
-              <br/>
+            <div className="settings-card form-card">
+              <h2>Seguridad</h2>
+              <button className="primary-btn" onClick={() => setShowPasswordModal(true)}>Cambiar contraseña</button>
             </div>
           </div>
 
-          {/*  Ingreso mensual */}
-          <div className="settings-card balance-card">
-            <h2>Configuración de Ingresos</h2>
-
-            <div className="balance-display">
-              <div className="balance-item">
-                <p className="balance-label">Ingreso total configurado:</p>
-                <p className="balance-value">${income.toLocaleString("es-CO")}</p>
+          {/* COL 2 - INGRESO / BALANCE */}
+          <div className="col">
+            <div className="settings-card form-card">
+              <h2>Configuración de Ingresos</h2>
+              <div className="balance-display">
+                <div className="balance-item">
+                  <p className="balance-label">Ingreso total:</p>
+                  <p className="balance-value">${income.toLocaleString("es-CO")}</p>
+                </div>
+                <div className="balance-item">
+                  <p className="balance-label">Disponible ahora:</p>
+                  <p className="balance-value" style={{ color: "#080459" }}>${currentIncome.toLocaleString("es-CO")}</p>
+                </div>
               </div>
-              <div className="balance-item">
-                <p className="balance-label">Disponible ahora:</p>
-                <p className="balance-value" style={{ color: "#080459" }}>
-                  ${currentIncome.toLocaleString("es-CO")}
-                </p>
-              </div>
-            </div>
+              <p className="reset-info">Próximo reset: {nextResetDate} ({daysUntilReset} días)</p>
 
-            <div
-              style={{
-                background: "#f0f9ff",
-                padding: "15px",
-                borderRadius: "8px",
-                marginTop: "15px",
-                border: "2px solid #0077cc",
-              }}
-            >
-              <p style={{ margin: "5px 0", fontSize: "0.9rem", color: "#333" }}>
-                <strong> Próximo reset:</strong> {nextResetDate}
-              </p>
-              <p style={{ margin: "5px 0", fontSize: "0.9rem", color: "#666" }}>
-                 Faltan {daysUntilReset} días
-              </p>
-            </div>
-
-            <div style={{ marginTop: "20px" }}>
-              <label style={{ fontWeight: "600", color: "#333" }}>
-                Tipo de pago:
-              </label>
-              <select
-                value={incomeType}
-                onChange={(e) => setIncomeType(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  marginTop: "10px",
-                  borderRadius: "8px",
-                  border: "1px solid #ddd",
-                  fontSize: "1rem",
-                }}
-              >
-                <option value="monthly">
-                   Mensual (todo el ingreso al inicio del mes)
-                </option>
-                <option value="biweekly">
-                   Quincenal (mitad día 1, mitad día 15)
-                </option>
-              </select>
-
-              <div
-                style={{
-                  background: "#fff3cd",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  marginTop: "15px",
-                  fontSize: "0.85rem",
-                  color: "#856404",
-                  border: "1px solid #ffeeba",
-                }}
-              >
-                <strong> ¿Cómo funciona?</strong>
-                <br />
-                {incomeType === "monthly" ? (
-                  <>
-                    • <strong>Mensual:</strong> Tu ingreso completo estará
-                    disponible el día 1 de cada mes.
-                    <br />• El balance se resetea automáticamente cada mes.
-                  </>
-                ) : (
-                  <>
-                    • <strong>Quincenal:</strong> Recibes la mitad de tu ingreso
-                    el día 1 y la otra mitad el día 15.
-                    <br />• Primera quincena (1-14): Balance = 50% del ingreso
-                    <br />• Segunda quincena (15-fin): Balance = 100% del ingreso
-                  </>
-                )}
+              <div className="form-group">
+                <label>Tipo de pago</label>
+                <select value={incomeType} onChange={(e) => setIncomeType(e.target.value)}>
+                  <option value="monthly">Mensual</option>
+                  <option value="biweekly">Quincenal</option>
+                </select>
               </div>
 
-              <label
-                style={{
-                  fontWeight: "600",
-                  color: "#333",
-                  display: "block",
-                  marginTop: "15px",
-                }}
-              >
-                Ingreso {incomeType === "monthly" ? "mensual" : "quincenal"} total:
-              </label>
-              <input
-                type="number"
-                value={income}
-                onChange={(e) => setIncome(e.target.value)}
-                min="0"
-                step="1000"
-                placeholder={
-                  incomeType === "monthly"
-                    ? "Ej: 3000000"
-                    : "Ej: 3000000 (se dividirá en 2)"
-                }
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  marginTop: "10px",
-                  borderRadius: "8px",
-                  border: "1px solid #ddd",
-                  fontSize: "1rem",
-                }}
-              />
-
-              <button
-                onClick={handleUpdateIncome}
-                style={{
-                  marginTop: "15px",
-                  background: "#080459",
-                  color: "white",
-                  border: "none",
-                  padding: "12px 20px",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  width: "100%",
-                  fontSize: "1rem",
-                  fontWeight: "600",
-                }}
-              >
-                 Actualizar configuración de ingresos
-              </button>
+              <div className="form-group">
+                <label>Ingreso {incomeType === "monthly" ? "mensual" : "quincenal"}</label>
+                <input type="number" value={income} onChange={e => setIncome(e.target.value)} />
+              </div>
+              <button onClick={handleUpdateIncome} className="primary-btn">Actualizar ingreso</button>
             </div>
           </div>
 
-          {/*  Seguridad */}
-          <div className="settings-card">
-            <h2> Seguridad</h2>
-            <p>Cambia tu contraseña o gestiona tu seguridad</p>
-            <button
-              style={{
-                marginTop: "10px",
-                background: "#3b82f6",
-                color: "white",
-                border: "none",
-                padding: "10px 20px",
-                borderRadius: "8px",
-                cursor: "pointer",
-              }}
-            >
-               Cambiar contraseña
-            </button>
-          </div>
-
-          {/*  Información de cuenta */}
-          <div className="settings-card">
-            <h2> Información de cuenta</h2>
-            <p>
-              <strong>ID:</strong> {user.id}
-            </p>
-            <p>
-              <strong>Estado:</strong>{" "}
-              {user.is_active ? " Activo" : " Inactivo"}
-            </p>
-            <p>
-              <strong>Fecha de registro:</strong>{" "}
-              {new Date(user.created_at).toLocaleString()}
-            </p>
-            <p>
-              <strong>Tipo de ingreso:</strong>{" "}
-              {user.income_type === "monthly" ? " Mensual" : " Quincenal"}
-            </p>
+          {/* COL 3 - INFORMACIÓN DE CUENTA */}
+          <div className="col">
+            <div className="settings-card">
+              <h2>Información de cuenta</h2>
+              <p><strong>ID:</strong> {user.id}</p>
+              <p><strong>Estado:</strong> {user.is_active ? "Activo" : "Inactivo"}</p>
+              <p><strong>Registro:</strong> {new Date(user.created_at).toLocaleString()}</p>
+              <p><strong>Tipo de ingreso:</strong> {user.income_type === "monthly" ? "Mensual" : "Quincenal"}</p>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* MODAL CONTRASEÑA */}
+      {showPasswordModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Cambiar contraseña</h3>
+            <div className="form-group">
+              <input
+                type="password"
+                placeholder="Contraseña actual"
+                value={oldPassword}
+                onChange={(e) => setOldPassword(e.target.value)}
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="password"
+                placeholder="Nueva contraseña"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="password"
+                placeholder="Confirmar nueva contraseña"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </div>
+            <div className="modal-buttons">
+              <button onClick={handleChangePassword} className="primary-btn">Guardar</button>
+              <button onClick={() => setShowPasswordModal(false)} className="secondary-btn">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <footer className="app-footer">
         <p>Manuel Lozano & Cristobal Perez - Ingenieros de Sistemas</p>

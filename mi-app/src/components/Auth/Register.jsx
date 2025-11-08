@@ -15,7 +15,7 @@ export default function Register() {
     e.preventDefault();
     try {
       await api.post("/auth/register", {
-        name,
+        full_name:name,
         email,
         password,
         income: parseFloat(income) || 0,
