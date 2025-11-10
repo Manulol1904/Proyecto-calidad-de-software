@@ -1,7 +1,9 @@
+# test/test_with_pom.py
 import unittest
 import time
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
 
 from pages.login_page import LoginPage
 from pages.register_page import RegisterPage
@@ -45,6 +47,19 @@ class TestsWithPOM(unittest.TestCase):
         self.login_page.navigate()
         time.sleep(1)
     
+    def _wait_for_toasts(self):
+        """Esperar a que desaparezcan los toasts"""
+        try:
+            toasts = self.driver.find_elements(By.CLASS_NAME, "toast")
+            if toasts:
+                print(f"⏳ Esperando {len(toasts)} toast(s)...")
+                WebDriverWait(self.driver, 6).until(
+                    lambda d: len(d.find_elements(By.CLASS_NAME, "toast")) == 0
+                )
+                time.sleep(0.5)
+        except Exception as e:
+            print(f"⚠️ Error esperando toasts: {str(e)[:50]}")
+    
     # Tests
     def test_01_login_exitoso(self):
         """Test: Login con POM"""
@@ -55,7 +70,8 @@ class TestsWithPOM(unittest.TestCase):
             self.test_user["password"]
         )
         
-        time.sleep(2)
+        time.sleep(3)
+        self._wait_for_toasts()
         
         self.assertTrue(self.dashboard_page.is_loaded())
         print("✅ Login exitoso usando POM")
@@ -69,7 +85,8 @@ class TestsWithPOM(unittest.TestCase):
             self.test_user["email"],
             self.test_user["password"]
         )
-        time.sleep(2)
+        time.sleep(3)
+        self._wait_for_toasts()
         
         # Navegar a gastos
         self.dashboard_page.navigate_to_expenses()
@@ -83,6 +100,7 @@ class TestsWithPOM(unittest.TestCase):
             expense_type="expense"
         )
         time.sleep(2)
+        self._wait_for_toasts()
         
         # Verificar
         self.assertTrue(self.expenses_page.is_expense_in_table("Test POM"))
@@ -97,7 +115,8 @@ class TestsWithPOM(unittest.TestCase):
             self.test_user["email"],
             self.test_user["password"]
         )
-        time.sleep(2)
+        time.sleep(3)
+        self._wait_for_toasts()
         
         # Navegar a configuración
         self.dashboard_page.navigate_to_config()
