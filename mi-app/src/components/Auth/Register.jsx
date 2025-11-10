@@ -21,7 +21,7 @@ export default function Register() {
         income: parseFloat(income) || 0,
         income_type: incomeType,
       });
-      alert("Cuenta creada con éxito. Inicia sesión.");
+      toast.success("Cuenta creada con éxito. Inicia sesión.");
       nav("/login");
     } catch (err) {
       console.error(err);

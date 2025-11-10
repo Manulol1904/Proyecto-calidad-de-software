@@ -6,7 +6,7 @@ class DashboardPage(BasePage):
     """Página de Dashboard"""
     
     # Locators
-    TITLE = (By.XPATH, "//*[contains(text(), 'Dashboard Financiero')]")
+    TITLE = (By.XPATH, "//*[contains(text(), 'Mi Panel')]")
     SUMMARY_CARDS = (By.CLASS_NAME, "summary-card")
     CHARTS = (By.TAG_NAME, "canvas")
     GASTOS_LINK = (By.XPATH, "//a[contains(text(), 'Gastos')]")

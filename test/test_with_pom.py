@@ -22,8 +22,8 @@ class TestsWithPOM(unittest.TestCase):
         
         # Credenciales de prueba
         cls.test_user = {
-            "email": "manu123@gmail.com",
-            "password": "manu123",
+            "email": "cris123@gmail.com",
+            "password": "147258369",
             "name": "Usuario Test",
             "income": "3000000"
         }
