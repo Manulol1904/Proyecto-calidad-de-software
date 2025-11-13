@@ -1,109 +1,147 @@
-/* mi-app/src/components/CurrencySelector/CurrencySelector.css */
-
+/* === Contenedor general === */
 .currency-selector-container {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 6px;
+}
+
+/* === Fila principal === */
+.currency-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+/* === Selector (versión compacta) === */
+.currency-select {
+  flex: 1;
+  padding: 6px 8px;           /* más compacto */
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 0.8rem;          /* antes 0.9rem */
+  font-weight: 500;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  appearance: none;
+}
+
+
+.currency-select:hover:not(:disabled) {
+  border-color: #64748b;
+}
+
+.currency-select:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* === Botón de recarga === */
+.refresh-btn {
+  background: #080459;
+  border: none;
+  color: #ffffff;
+  padding: 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background: #0b69d5;
+  transform: scale(1.05);
+}
+
+.refresh-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* === Animación al recargar === */
+.refresh-btn.loading svg {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
   }
-  
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* === Texto de última actualización === */
+.last-update {
+  font-size: 0.7rem;
+  color: #6b7280;
+  font-style: italic;
+  text-align: center;
+  width: 100%;
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
   .currency-selector {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(255, 255, 255, 0.95);
-    padding: 8px 12px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+    flex-direction: column;
+    align-items: stretch;
   }
-  
-  .currency-selector:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-  
-  .currency-icon {
-    font-size: 1.2rem;
-  }
-  
-  .currency-select {
-    padding: 6px 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background: white;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    outline: none;
-  }
-  
-  .currency-select:hover:not(:disabled) {
-    border-color: #080459;
-  }
-  
-  .currency-select:focus {
-    border-color: #080459;
-    box-shadow: 0 0 0 3px rgba(82, 196, 157, 0.1);
-  }
-  
-  .currency-select:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  
+
   .refresh-btn {
-    background: #080459;
-    border: none;
-    color: white;
-    padding: 6px 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 100%;
   }
-  
-  .refresh-btn:hover:not(:disabled) {
-    background: #45b38d;
-    transform: scale(1.05);
-  }
-  
-  .refresh-btn:active:not(:disabled) {
-    transform: scale(0.95);
-  }
-  
-  .refresh-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  
-  .last-update {
-    font-size: 0.75rem;
-    color: #666;
-    font-style: italic;
-    text-align: right;
-  }
-  
-  .last-update small {
-    display: block;
-  }
-  
-  /* Responsive */
-  @media (max-width: 768px) {
-    .currency-selector-container {
-      align-items: center;
-      width: 100%;
-    }
-    
-    .currency-selector {
-      width: 100%;
-      justify-content: center;
-    }
-    
-    .last-update {
-      text-align: center;
-    }
-  }
+}
+.currency-select {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1px solid #cce7de;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 0.2rem;       /* 🔹 texto más pequeño */
+  font-weight: 500;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  height: 30px;
+  line-height: 1.2;
+  appearance: none;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: left;
+}
+
+
+/* === Botón más pequeño === */
+.refresh-btn {
+  background: #080459;
+  border: none;
+  color: white;
+  padding: 4px 6px;           /* antes 6px 8px */
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;         /* antes 0.9rem */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;               /* igual que el select */
+  width: 34px;                /* tamaño cuadrado proporcionado */
+  transition: all 0.2s ease;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background: #0b69d5;
+  transform: scale(1.05);
+}

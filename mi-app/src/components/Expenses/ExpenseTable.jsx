@@ -14,8 +14,8 @@ export default function ExpenseTable({ filter = "", type = "all", customList }) 
     if (isRecurring) {
       const deleteFuture = window.confirm(
         `¿Deseas eliminar el gasto recurrente "${title}"?\n\n` +
-          "• Sí = Elimina todo (incluyendo futuras instancias)\n" +
-          "• No = Solo elimina esta configuración"
+        "• Sí = Elimina todo (incluyendo futuras instancias)\n" +
+        "• No = Solo elimina esta configuración"
       );
 
       try {
@@ -31,7 +31,7 @@ export default function ExpenseTable({ filter = "", type = "all", customList }) 
       }
     } else {
       if (!window.confirm(`¿Seguro que quieres eliminar "${title}"?`)) return;
-      
+
       try {
         const token = localStorage.getItem("token");
         await api.delete(`/expenses/${id}`, {
@@ -77,8 +77,13 @@ export default function ExpenseTable({ filter = "", type = "all", customList }) 
         {filtered.map((exp) => {
           const isIncome = exp.type === "income";
           const amount = Math.abs(Number(exp.amount));
+          
+          // ✅ Verificación correcta: el backend envía "None" como string
           const isRecurring = exp.is_recurring === true;
-          const isInstance = exp.parent_recurring_id != null;
+          const isInstance = exp.parent_recurring_id && 
+                            exp.parent_recurring_id !== "None" && 
+                            exp.parent_recurring_id !== null && 
+                            exp.parent_recurring_id !== undefined;
           const recurrenceDay = exp.recurrence_day;
 
           return (
@@ -106,7 +111,6 @@ export default function ExpenseTable({ filter = "", type = "all", customList }) 
                 ${amount.toFixed(2)}
               </td>
               <td>{new Date(exp.date).toISOString().split("T")[0]}</td>
-
               <td>
                 {isRecurring && recurrenceDay ? (
                   <span className="badge-recurring">
@@ -120,9 +124,7 @@ export default function ExpenseTable({ filter = "", type = "all", customList }) 
                   <span style={{ color: "#999" }}>-</span>
                 )}
               </td>
-
               <td>{exp.description || "-"}</td>
-
               <td>
                 <button
                   onClick={() => handleDelete(exp.id, isRecurring, exp.title)}

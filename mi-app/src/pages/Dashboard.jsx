@@ -212,7 +212,6 @@ export default function Dashboard() {
       <nav className="navbar">
         <h2 className="nav-title">Mi Panel</h2>
         <div className="nav-links">
-          <CurrencySelector />
           <Link to="/">Dashboard</Link>
           <Link to="/gastos">Gastos</Link>
           <Link to="/config">Configuración</Link>
@@ -223,6 +222,10 @@ export default function Dashboard() {
       <div className="dashboard-grid">
         {/* === SIDEBAR IZQUIERDA === */}
         <div className="sidebar compact">
+          <div className="card small currency-card">
+            <h4>Moneda</h4>
+            <CurrencySelector />
+          </div>
           {[
             { title: "Ingreso Disponible", value: convertedCurrentIncome },
             { title: "Total Ingresos", value: convertedTotalIncome },
@@ -264,7 +267,7 @@ export default function Dashboard() {
         {recentList.length > 0 ? (
           recentList.map((item) => (
             <tr key={item._id}>
-              <td>{normalizeCategory(item.category)}</td>
+              <td>{normalizeCategory(item.title)}</td>
               <td
                 className={
                   item.type === "income"

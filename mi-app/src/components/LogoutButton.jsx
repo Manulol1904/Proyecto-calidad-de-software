@@ -50,7 +50,7 @@ export default function LogoutButton({ className = "logout-btn", style = {} }) {
         cursor: isLoggingOut ? "not-allowed" : "pointer"
       }}
     >
-      {isLoggingOut ? "🔄 Cerrando..." : "🚪 Cerrar sesión"}
+      {isLoggingOut ? "Cerrando..." : " Cerrar sesión"}
     </button>
   );
 }
