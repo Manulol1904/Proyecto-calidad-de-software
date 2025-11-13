@@ -90,7 +90,7 @@ class BalanceService:
         try:
             user = await self.users_collection.find_one({"_id": ObjectId(user_id)})
             
-            if not user:
+            if user is None:
                 return {"success": False, "message": "Usuario no encontrado"}
             
             income_type = user.get("income_type", "monthly")
@@ -140,7 +140,7 @@ class BalanceService:
         try:
             user = await self.users_collection.find_one({"_id": ObjectId(user_id)})
             
-            if not user:
+            if user is None:
                 return 0.0
             
             income = user.get("income", 0.0)
@@ -223,7 +223,7 @@ class BalanceService:
         try:
             user = await self.users_collection.find_one({"_id": ObjectId(user_id)})
             
-            if not user:
+            if user is None:
                 return {"success": False, "message": "Usuario no encontrado"}
             
             # Si ya tiene fechas configuradas, no hacer nada

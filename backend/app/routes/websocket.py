@@ -59,7 +59,7 @@ async def get_user_from_token(token: str) -> str:
         email = get_user_email_from_token(token)
         auth_service = AuthService()
         user = await auth_service.get_user_by_email(email)
-        if not user:
+        if user is None:
             raise HTTPException(status_code=401, detail="User not found")
         return str(user.id)
     except Exception as e:

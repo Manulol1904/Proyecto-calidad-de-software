@@ -78,7 +78,7 @@ class AuthService:
 
     async def authenticate_user(self, email: str, password: str) -> Optional[User]:
         user = await self.get_user_by_email(email)
-        if not user:
+        if user is None:
             return None
         if not verify_password(password, user.hashed_password):
             return None
@@ -104,7 +104,7 @@ class AuthService:
     async def verify_password(self, email: str, password: str) -> bool:
         """Verifica si la contraseña es correcta"""
         user = await self.get_user_by_email(email)
-        if not user:
+        if user is None:
             return False
         return verify_password(password, user.hashed_password)
 

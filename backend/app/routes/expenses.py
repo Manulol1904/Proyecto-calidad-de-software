@@ -47,7 +47,7 @@ async def get_expenses(
             type=expense.type,
             is_recurring=expense.is_recurring,
             recurrence_day=expense.recurrence_day,
-            parent_recurring_id=str(expense.parent_recurring_id) if expense.parent_recurring_id else None,
+            parent_recurring_id = str(expense.parent_recurring_id) if expense is not None else None,
             created_at=expense.created_at,
             updated_at=expense.updated_at
         )
@@ -70,7 +70,7 @@ async def get_expense(
     expense_service = ExpenseService()
     
     expense = await expense_service.get_expense_by_id(expense_id, str(current_user.id))
-    if not expense:
+    if expense is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Expense not found"
@@ -87,7 +87,7 @@ async def get_expense(
         type=expense.type,
         is_recurring=expense.is_recurring,
         recurrence_day=expense.recurrence_day,
-        parent_recurring_id=str(expense.parent_recurring_id) if expense.parent_recurring_id else None,
+        parent_recurring_id = str(expense.parent_recurring_id) if expense is not None else None,
         created_at=expense.created_at,
         updated_at=expense.updated_at
     )
@@ -117,7 +117,7 @@ async def create_expense(
         type=expense.type,
         is_recurring=expense.is_recurring,
         recurrence_day=expense.recurrence_day,
-        parent_recurring_id=str(expense.parent_recurring_id) if expense.parent_recurring_id else None,
+        parent_recurring_id = str(expense.parent_recurring_id) if expense is not None else None,
         created_at=expense.created_at,
         updated_at=expense.updated_at
     )
@@ -135,7 +135,7 @@ async def update_expense(
         expense_id, str(current_user.id), expense_update
     )
     
-    if not expense:
+    if expense is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Expense not found"
@@ -152,7 +152,7 @@ async def update_expense(
         type=expense.type,
         is_recurring=expense.is_recurring,
         recurrence_day=expense.recurrence_day,
-        parent_recurring_id=str(expense.parent_recurring_id) if expense.parent_recurring_id else None,
+        parent_recurring_id = str(expense.parent_recurring_id) if expense is not None else None,
         created_at=expense.created_at,
         updated_at=expense.updated_at
     )

@@ -53,7 +53,7 @@ async def login(login_data: UserLogin):
     settings = get_settings()
     
     user = await auth_service.authenticate_user(login_data.email, login_data.password)
-    if not user:
+    if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
@@ -181,7 +181,7 @@ async def forgot_password(request: PasswordResetRequest):
     users_collection = await get_collection("users")
     user = await users_collection.find_one({"email": email})
 
-    if not user:
+    if user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No existe un usuario con ese correo"
