@@ -41,11 +41,18 @@ export default function Dashboard() {
   const [convertedTotalIncome, setConvertedTotalIncome] = useState(0);
   const [convertedTotalExpense, setConvertedTotalExpense] = useState(0);
   const [convertedBalance, setConvertedBalance] = useState(0);
-  const [convertedList, setConvertedList] = useState([]); // 🧩 nueva lista convertida
-  const [categoryTotals, setCategoryTotals] = useState([]); // 🧩 Totales agrupados
+  const [convertedList, setConvertedList] = useState([]);
+  const [categoryTotals, setCategoryTotals] = useState([]);
   const [evolutionLabels, setEvolutionLabels] = useState([]);
   const [evolutionValues, setEvolutionValues] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // 🔧 FIX: eliminar el desfase interpretando la fecha directamente del ISO YYYY-MM-DD
+  const parseLocalDate = (isoString) => {
+    if (!isoString) return "";
+    const [y, m, d] = isoString.split("T")[0].split("-");
+    return `${y}-${m}-${d}`;
+  };
 
   useEffect(() => {
     if (typeof setSelectedCurrency === "function" && selectedCurrency !== "COP") {
@@ -77,7 +84,6 @@ export default function Dashboard() {
     const buildData = async () => {
       setLoading(true);
       try {
-        // Conversión de totales generales
         const [cCurrent, cTotalIncome, cTotalExpense] = await Promise.all([
           convertFromCOP(currentIncome || 0),
           convertFromCOP(totalIncomeCOP),
@@ -89,7 +95,7 @@ export default function Dashboard() {
         setConvertedTotalExpense(cTotalExpense);
         setConvertedBalance(cCurrent + cTotalIncome - cTotalExpense);
 
-        // 🧩 Conversión de lista completa
+        // Convertir lista
         const convertedItems = await Promise.all(
           list.map(async (item) => {
             const amountCOP = Math.abs(Number(item.amount) || 0);
@@ -97,12 +103,13 @@ export default function Dashboard() {
             return {
               ...item,
               convertedAmount: converted,
+              fixedDate: parseLocalDate(item.date), // 🔧 fecha corregida
             };
           })
         );
         setConvertedList(convertedItems);
 
-        // 🧩 Agrupar por categoría (solo gastos)
+        // Agrupar por categoría (solo gastos)
         const categoryMap = {};
         for (const item of convertedItems) {
           if (item.type === "expense") {
@@ -110,39 +117,40 @@ export default function Dashboard() {
             categoryMap[category] = (categoryMap[category] || 0) + item.convertedAmount;
           }
         }
+
         const grouped = Object.entries(categoryMap).map(([cat, total]) => ({
           category: cat,
           total,
         }));
         setCategoryTotals(grouped);
 
-        // Evolución de saldo
-        const sortedAsc = [...list].sort((a, b) => new Date(a.date) - new Date(b.date));
-        const uniqueDatesAsc = [...new Set(sortedAsc.map((e) => new Date(e.date).toLocaleDateString()))];
+        // Evolución del saldo
+        const sortedAsc = [...convertedItems].sort(
+          (a, b) => new Date(a.fixedDate) - new Date(b.fixedDate)
+        );
+
+        const uniqueDatesAsc = [...new Set(sortedAsc.map((e) => e.fixedDate))];
 
         const labels = [];
         const values = [];
 
         if (uniqueDatesAsc.length > 0) {
-          const firstDate = new Date(sortedAsc[0].date);
+          const firstDate = new Date(uniqueDatesAsc[0]);
           const dayBefore = new Date(firstDate);
           dayBefore.setDate(dayBefore.getDate() - 1);
-          labels.push(dayBefore.toLocaleDateString());
+          labels.push(dayBefore.toISOString().split("T")[0]);
         } else {
-          labels.push(new Date().toLocaleDateString());
+          labels.push(new Date().toISOString().split("T")[0]);
         }
 
         values.push(cCurrent);
         let running = cCurrent;
 
         for (const date of uniqueDatesAsc) {
-          const dayMovements = sortedAsc.filter(
-            (mv) => new Date(mv.date).toLocaleDateString() === date
-          );
+          const dayMovements = sortedAsc.filter((mv) => mv.fixedDate === date);
 
           for (const mv of dayMovements) {
-            const amountCOP = Math.abs(Number(mv.amount) || 0);
-            const conv = await convertFromCOP(amountCOP);
+            const conv = mv.convertedAmount;
             running += mv.type === "income" ? conv : -conv;
           }
 
@@ -160,9 +168,20 @@ export default function Dashboard() {
     };
 
     if (initialized) buildData();
-  }, [list, currentIncome, totalIncomeCOP, totalExpenseCOP, selectedCurrency, initialized, convertFromCOP]);
+  }, [
+    list,
+    currentIncome,
+    totalIncomeCOP,
+    totalExpenseCOP,
+    selectedCurrency,
+    initialized,
+    convertFromCOP,
+  ]);
 
-  const sortedListDesc = [...convertedList].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const sortedListDesc = [...convertedList].sort(
+    (a, b) => new Date(b.fixedDate) - new Date(a.fixedDate)
+  );
+
   const recentList = sortedListDesc.slice(0, 5);
 
   const dataLine = {
@@ -226,6 +245,7 @@ export default function Dashboard() {
             <h4>Moneda</h4>
             <CurrencySelector />
           </div>
+
           {[
             { title: "Ingreso Disponible", value: convertedCurrentIncome },
             { title: "Total Ingresos", value: convertedTotalIncome },
@@ -247,10 +267,12 @@ export default function Dashboard() {
           <div className="chart large">
             <Line data={dataLine} />
           </div>
+
           <div className="chart small-row">
             <div className="chart small">
               <Bar data={dataBar} />
             </div>
+
             <div className="chart small">
               <Doughnut data={dataDoughnut} />
             </div>
@@ -258,64 +280,56 @@ export default function Dashboard() {
         </div>
 
         {/* === PANEL DERECHO === */}
-<div className="right">
-  {/* === SECCIÓN 1: ÚLTIMOS MOVIMIENTOS === */}
-  <div className="right-section">
-    <h3>Últimos movimientos</h3>
-    <table>
-      <tbody>
-        {recentList.length > 0 ? (
-          recentList.map((item) => (
-            <tr key={item._id}>
-              <td>{normalizeCategory(item.title)}</td>
-              <td
-                className={
-                  item.type === "income"
-                    ? "amount-income"
-                    : "amount-expense"
-                }
-              >
-                {item.type === "income" ? "+" : "-"}
-                {formatAmount(item.convertedAmount)}
-              </td>
-            </tr>
-          ))
-        ) : (
-          <tr>
-            <td colSpan="2">Sin movimientos recientes</td>
-          </tr>
-        )}
-      </tbody>
-    </table>
-  </div>
+        <div className="right">
+          {/* Últimos movimientos */}
+          <div className="right-section">
+            <h3>Últimos movimientos</h3>
+            <table>
+              <tbody>
+                {recentList.length > 0 ? (
+                  recentList.map((item) => (
+                    <tr key={item._id}>
+                      <td>{normalizeCategory(item.title)}</td>
+                      <td
+                        className={
+                          item.type === "income" ? "amount-income" : "amount-expense"
+                        }
+                      >
+                        {item.type === "income" ? "+" : "-"}
+                        {formatAmount(item.convertedAmount)}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="2">Sin movimientos recientes</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
 
-  {/* === SECCIÓN 2: GASTOS POR CATEGORÍA === */}
-  <div className="right-section">
-    <h3>Gastos por categoría</h3>
-    <table>
-      <thead>
-        <tr>
-        </tr>
-      </thead>
-      <tbody>
-        {categoryTotals.length > 0 ? (
-          categoryTotals.map((cat, idx) => (
-            <tr key={idx}>
-              <td>{cat.category}</td>
-              <td className="amount-expense">
-                -{formatAmount(cat.total)}
-              </td>
-            </tr>
-          ))
-        ) : (
-          <tr>
-            <td colSpan="2">Sin gastos registrados</td>
-          </tr>
-        )}
-      </tbody>
-    </table>
-  </div>
-</div>
+          {/* Gastos por categoría */}
+          <div className="right-section">
+            <h3>Gastos por categoría</h3>
+            <table>
+              <tbody>
+                {categoryTotals.length > 0 ? (
+                  categoryTotals.map((cat, idx) => (
+                    <tr key={idx}>
+                      <td>{cat.category}</td>
+                      <td className="amount-expense">-{formatAmount(cat.total)}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="2">Sin gastos registrados</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
       <footer className="app-footer">

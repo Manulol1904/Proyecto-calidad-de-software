@@ -230,7 +230,7 @@ class TestExpenseUpdate:
         update_data = {
             "title": "Título actualizado",
             "amount": 75000,
-            "category": "Nueva categoría"
+            "category": "Nueva Categoría"
         }
         response = await client.put(f"/expenses/{expense_id}", json=update_data)
         
@@ -399,12 +399,12 @@ class TestRecurringExpenses:
         
         # Crear gasto recurrente
         await client.post("/expenses/", json={
-            "title": "Spotify",
-            "amount": 20000,
+            "title": "Netflix",
+            "amount": 45000,
             "category": "Suscripciones",
             "type": "expense",
             "is_recurring": True,
-            "recurrence_day": 10
+            "recurrence_day": 15
         })
         
         # Obtener recurrentes
