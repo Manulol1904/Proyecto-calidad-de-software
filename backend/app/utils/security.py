@@ -29,7 +29,9 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     else:
         expire = datetime.utcnow() + timedelta(minutes=settings.access_token_expire_minutes)
     
-    to_encode.update({"exp": expire})
+    # Store expiration as UNIX timestamp (int) to avoid timezone/serialization issues
+    exp_ts = int(expire.timestamp())
+    to_encode.update({"exp": exp_ts})
     encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
     return encoded_jwt
 
@@ -37,7 +39,25 @@ def verify_token(token: str) -> dict:
     """Verify and decode a JWT token"""
     settings = get_settings()
     try:
-        payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+        # Decode token and let jose verify signature; however some environments
+        # may not enforce exp claim consistently, so we perform an explicit
+        # check after decoding to ensure expired tokens are rejected.
+        payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm], options={"verify_exp": False})
+
+        # Manual expiration check
+        exp = payload.get("exp")
+        if exp is None:
+            raise JWTError("Missing exp claim")
+
+        # exp may be int timestamp
+        try:
+            exp_ts = float(exp)
+        except Exception:
+            raise JWTError("Invalid exp claim")
+
+        if exp_ts <= datetime.utcnow().timestamp():
+            raise JWTError("Token has expired")
+
         return payload
     except JWTError:
         raise HTTPException(

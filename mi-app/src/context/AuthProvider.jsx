@@ -69,7 +69,7 @@ export function AuthProvider({ children }) {
 
       try {
         const res = await api.get("/auth/me", {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
         
         dispatch({ 
@@ -91,11 +91,11 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     dispatch({ type: "LOGIN_START" });
     try {
-      const res = await api.post("/auth/login", { email, password });
+  const res = await api.post("/auth/login", { email, password });
       
       const token = res.data.access_token;
       localStorage.setItem("token", token);
-      
+
       dispatch({
         type: "LOGIN_SUCCESS",
         payload: {

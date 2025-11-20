@@ -18,10 +18,11 @@ export default function ExpenseTable({ filter = "", type = "all", customList }) 
         "• No = Solo elimina esta configuración"
       );
 
-      try {
+        try {
         const token = localStorage.getItem("token");
         await api.delete(`/expenses/recurring/${id}?delete_future=${deleteFuture}`, {
           headers: { Authorization: `Bearer ${token}` },
+          silentToast: true,
         });
         addToast("Gasto recurrente eliminado correctamente", "success");
         loadExpenses();
@@ -32,10 +33,11 @@ export default function ExpenseTable({ filter = "", type = "all", customList }) 
     } else {
       if (!window.confirm(`¿Seguro que quieres eliminar "${title}"?`)) return;
 
-      try {
+        try {
         const token = localStorage.getItem("token");
         await api.delete(`/expenses/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
+          silentToast: true,
         });
         addToast("Registro eliminado correctamente", "success");
         loadExpenses();

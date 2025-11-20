@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import api from "../../Api/apiClient";
 import { useNavigate } from "react-router-dom";
 import "../../assets/styles/registro.css";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { useToast } from "../Toast/Toast";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -12,6 +11,7 @@ export default function Register() {
   const [income, setIncome] = useState("");
   const [incomeType, setIncomeType] = useState("monthly");
   const nav = useNavigate();
+  const { addToast } = useToast();
 
   const submit = async (e) => {
     e.preventDefault();
@@ -22,12 +22,13 @@ export default function Register() {
         password,
         income: parseFloat(income) || 0,
         income_type: incomeType,
-      });
-      toast.success("Cuenta creada con éxito. Inicia sesión.");
+      }, { silentToast: true });
+      addToast("Cuenta creada con éxito. Inicia sesión.", "success");
       nav("/login");
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.detail || err.message);
+      const msg = err.response?.data?.detail || err.message || "Error al crear la cuenta";
+      addToast(msg, "error");
     }
   };
 

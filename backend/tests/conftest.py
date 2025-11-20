@@ -96,6 +96,9 @@ def pytest_configure(config):
         "markers", "slow: mark test as slow running"
     )
     config.addinivalue_line(
+        "markers", "performance: mark test as performance/latency check"
+    )
+    config.addinivalue_line(
         "markers", "integration: mark test as integration test"
     )
 

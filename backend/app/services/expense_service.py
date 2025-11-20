@@ -11,8 +11,15 @@ def normalize_category(category: str) -> str:
     if not category:
         return "Sin Categoría"
     
-    # Elimina espacios extra y convierte a título
-    return ' '.join(word.capitalize() for word in category.strip().split())
+    # Elimina espacios extra
+    parts = [p for p in category.strip().split() if p]
+    if not parts:
+        return "Sin Categoría"
+
+    # Capitalizar solo la primera palabra, mantener el resto en minúsculas
+    first = parts[0].capitalize()
+    rest = [p.lower() for p in parts[1:]]
+    return ' '.join([first] + rest)
 
 
 class ExpenseService:
@@ -35,6 +42,23 @@ class ExpenseService:
         expense_dict["user_id"] = ObjectId(user_id)
         expense_dict["created_at"] = datetime.utcnow()
         expense_dict["updated_at"] = datetime.utcnow()
+
+        # Asegurar que el campo `date` se guarde como datetime en la DB
+        # El frontend suele enviar fecha en formato ISO (string). Convertimos
+        # a datetime para mantener consistencia y permitir consultas/ordenado correcto.
+        date_val = expense_dict.get("date")
+        if isinstance(date_val, str):
+            try:
+                # Manejar sufijo Z (UTC)
+                if date_val.endswith("Z"):
+                    expense_dict["date"] = datetime.fromisoformat(date_val.replace("Z", "+00:00"))
+                else:
+                    expense_dict["date"] = datetime.fromisoformat(date_val)
+            except Exception:
+                # Si falla el parseo, usar fecha actual UTC
+                expense_dict["date"] = datetime.utcnow()
+        elif not date_val:
+            expense_dict["date"] = datetime.utcnow()
 
         # ✅ Asegurar que type esté definido
         if "type" not in expense_dict or not expense_dict["type"]:

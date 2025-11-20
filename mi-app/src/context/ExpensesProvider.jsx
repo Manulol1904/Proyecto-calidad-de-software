@@ -127,8 +127,10 @@ export function ExpensesProvider({ children }) {
         recurrence_day: expenseData.is_recurring ? expenseData.recurrence_day : null,
       };
 
+      // silentToast: true porque el formulario ya muestra toasts
       const res = await api.post("/expenses/", finalData, {
         headers: { Authorization: `Bearer ${token}` },
+        silentToast: true,
       });
 
       const newExp = {

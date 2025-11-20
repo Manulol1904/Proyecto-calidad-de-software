@@ -61,36 +61,8 @@ async def get_expenses(
         limit=limit
     )
 
-@router.get("/{expense_id}", response_model=ExpenseResponse)
-async def get_expense(
-    expense_id: str,
-    current_user: User = Depends(get_current_active_user)
-):
-    """Get a specific expense by ID"""
-    expense_service = ExpenseService()
-    
-    expense = await expense_service.get_expense_by_id(expense_id, str(current_user.id))
-    if expense is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Expense not found"
-        )
-    
-    return ExpenseResponse(
-        id=str(expense.id),
-        user_id=str(expense.user_id),
-        title=expense.title,
-        amount=abs(expense.amount),
-        category=expense.category,
-        description=expense.description,
-        date=expense.date,
-        type=expense.type,
-        is_recurring=expense.is_recurring,
-        recurrence_day=expense.recurrence_day,
-        parent_recurring_id = str(expense.parent_recurring_id) if expense is not None else None,
-        created_at=expense.created_at,
-        updated_at=expense.updated_at
-    )
+# NOTE: get_expense (/{expense_id}) is declared later to avoid catching specific
+# routes like /recurring or /stats when the path parameter would match them.
 
 @router.post("/", response_model=ExpenseResponse, status_code=status.HTTP_201_CREATED)
 async def create_expense(
@@ -172,7 +144,7 @@ async def delete_expense(
             detail="Expense not found"
         )
 
-@router.get("/stats/summary", response_model=ExpenseStats)
+@router.get("/stats/summary", response_model=dict)
 async def get_expense_summary(
     current_user: User = Depends(get_current_active_user),
     start_date: Optional[datetime] = Query(None, description="Start date for statistics"),
@@ -187,7 +159,8 @@ async def get_expense_summary(
         end_date=end_date
     )
     
-    return ExpenseStats(**stats)
+    # stats already contains keys like income_total, expense_total, balance
+    return stats
 
 @router.get("/stats/by-category", response_model=List[CategoryStats])
 async def get_expenses_by_category(
@@ -292,4 +265,38 @@ async def change_password(
 
     await auth_service.update_password(user.email, new_password)
     return {"message": "Contraseña actualizada correctamente"}
+
+
+# Route to get a specific expense by ID (placed after specific paths to avoid
+# being matched for routes like /recurring)
+@router.get("/{expense_id}", response_model=ExpenseResponse)
+async def get_expense(
+    expense_id: str,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Get a specific expense by ID"""
+    expense_service = ExpenseService()
+    
+    expense = await expense_service.get_expense_by_id(expense_id, str(current_user.id))
+    if expense is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Expense not found"
+        )
+    
+    return ExpenseResponse(
+        id=str(expense.id),
+        user_id=str(expense.user_id),
+        title=expense.title,
+        amount=abs(expense.amount),
+        category=expense.category,
+        description=expense.description,
+        date=expense.date,
+        type=expense.type,
+        is_recurring=expense.is_recurring,
+        recurrence_day=expense.recurrence_day,
+        parent_recurring_id = str(expense.parent_recurring_id) if expense is not None else None,
+        created_at=expense.created_at,
+        updated_at=expense.updated_at
+    )
 

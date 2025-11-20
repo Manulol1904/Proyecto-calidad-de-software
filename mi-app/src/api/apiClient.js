@@ -18,11 +18,25 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401) {
-      localStorage.removeItem("token");
-      // redirigir a login
-      window.location.href = "/login";
+    try {
+      const status = err.response?.status;
+      const data = err.response?.data;
+      const message = data?.detail || data?.message || err.message || 'Error desconocido';
+
+      // Emitir evento global para que ToastProvider lo muestre
+      if (typeof window !== 'undefined' && window.dispatchEvent) {
+        window.dispatchEvent(new CustomEvent('app-toast', { detail: { message, type: 'error' } }));
+      }
+
+      if (status === 401) {
+        localStorage.removeItem("token");
+        // redirigir a login
+        window.location.href = "/login";
+      }
+    } catch (e) {
+      console.error('Error en interceptor de respuestas:', e);
     }
+
     return Promise.reject(err);
   }
 );
